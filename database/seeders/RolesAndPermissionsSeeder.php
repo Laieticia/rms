@@ -5,104 +5,142 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
-use App\Models\User;
 
 class RolesAndPermissionsSeeder extends Seeder
 {
-    public function run()
+    public function run(): void
     {
-        // Réinitialiser le cache
+        // Réinitialiser les rôles en cache
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Permissions par module
+        // Liste des permissions
         $permissions = [
-            // Restaurants
-            'view restaurants', 'create restaurants', 'edit restaurants', 'delete restaurants',
+            // Gestion des utilisateurs
+            'user.view', 'user.create', 'user.edit', 'user.delete',
+            'user.assign_role', 'user.block',
             
-            // Produits
-            'view products', 'create products', 'edit products', 'delete products',
+            // Gestion du restaurant
+            'restaurant.view', 'restaurant.create', 'restaurant.edit', 'restaurant.delete',
+            'restaurant.manage_settings', 'restaurant.view_reports',
             
-            // Catégories
-            'view categories', 'create categories', 'edit categories', 'delete categories',
+            // Gestion des catégories
+            'category.view', 'category.create', 'category.edit', 'category.delete',
             
-            // Commandes
-            'view orders', 'create orders', 'edit orders', 'delete orders', 'update order status',
+            // Gestion des produits
+            'product.view', 'product.create', 'product.edit', 'product.delete',
+            'product.manage_inventory', 'product.set_prices',
             
-            // Utilisateurs
-            'view users', 'create users', 'edit users', 'delete users',
+            // Gestion des menus
+            'menu.view', 'menu.create', 'menu.edit', 'menu.delete',
             
-            // Livraison
-            'view deliveries', 'update delivery status',
+            // Gestion des commandes
+            'order.view', 'order.create', 'order.edit', 'order.delete',
+            'order.change_status', 'order.cancel', 'order.refund',
+            'order.view_all', 'order.manage_delivery',
             
-            // Avis
-            'view reviews', 'create reviews', 'delete reviews', 'moderate reviews',
+            // Gestion des livraisons
+            'delivery.view', 'delivery.assign', 'delivery.track',
+            'delivery.manage_zones',
             
-            // Paiements
-            'view payments', 'process payments',
+            // Gestion des paiements
+            'payment.view', 'payment.process', 'payment.refund',
             
-            // Rapports
-            'view reports',
+            // Gestion des coupons
+            'coupon.view', 'coupon.create', 'coupon.edit', 'coupon.delete',
             
-            // Paramètres
-            'manage settings',
+            // Gestion des avis
+            'review.view', 'review.moderate', 'review.respond',
+            
+            // Gestion des réservations
+            'reservation.view', 'reservation.create', 'reservation.edit',
+            'reservation.confirm', 'reservation.cancel',
+            
+            // Gestion de la fidélité
+            'loyalty.view', 'loyalty.create_rewards', 'loyalty.adjust_points',
+            
+            // Gestion des rapports
+            'reports.view', 'reports.export', 'reports.financial',
+            
+            // Gestion du personnel
+            'staff.view', 'staff.create', 'staff.edit', 'staff.delete',
+            'staff.manage_schedule',
+            
+            // Paramètres système
+            'settings.view', 'settings.edit', 'settings.maintenance',
+            'notifications.send', 'notifications.manage',
         ];
 
         // Créer les permissions
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+            Permission::create(['name' => $permission, 'guard_name' => 'web']);
         }
 
-        // Créer les rôles
-        // 1. Super Admin
-        $superAdmin = Role::firstOrCreate(['name' => 'super-admin', 'guard_name' => 'web']);
-        $superAdmin->syncPermissions(Permission::all());
+        // Créer les rôles et assigner les permissions
+        $roles = [
+            'super_admin' => $permissions, // Toutes les permissions
+            'admin' => [
+                'user.view', 'user.create', 'user.edit', 'user.block',
+                'restaurant.view', 'restaurant.edit', 'restaurant.manage_settings', 'restaurant.view_reports',
+                'category.view', 'category.create', 'category.edit', 'category.delete',
+                'product.view', 'product.create', 'product.edit', 'product.delete',
+                'product.manage_inventory', 'product.set_prices',
+                'menu.view', 'menu.create', 'menu.edit', 'menu.delete',
+                'order.view', 'order.view_all', 'order.change_status', 'order.cancel', 'order.refund',
+                'delivery.view', 'delivery.assign', 'delivery.track', 'delivery.manage_zones',
+                'payment.view', 'payment.process', 'payment.refund',
+                'coupon.view', 'coupon.create', 'coupon.edit', 'coupon.delete',
+                'review.view', 'review.moderate', 'review.respond',
+                'reservation.view', 'reservation.confirm', 'reservation.cancel',
+                'loyalty.view', 'loyalty.create_rewards', 'loyalty.adjust_points',
+                'reports.view', 'reports.export', 'reports.financial',
+                'staff.view', 'staff.create', 'staff.edit', 'staff.manage_schedule',
+                'settings.view', 'settings.edit',
+                'notifications.send', 'notifications.manage',
+            ],
+            'manager' => [
+                'restaurant.view', 'restaurant.view_reports',
+                'category.view', 'category.edit',
+                'product.view', 'product.edit', 'product.manage_inventory',
+                'menu.view', 'menu.edit',
+                'order.view', 'order.change_status', 'order.cancel',
+                'delivery.view', 'delivery.assign', 'delivery.track',
+                'payment.view',
+                'coupon.view', 'coupon.edit',
+                'review.view', 'review.moderate', 'review.respond',
+                'reservation.view', 'reservation.confirm', 'reservation.cancel',
+                'loyalty.view',
+                'reports.view', 'reports.export',
+                'staff.view', 'staff.manage_schedule',
+                'notifications.send',
+            ],
+            'chef' => [
+                'category.view',
+                'product.view', 'product.edit', 'product.manage_inventory',
+                'menu.view',
+                'order.view', 'order.change_status',
+            ],
+            'waiter' => [
+                'category.view',
+                'product.view',
+                'menu.view',
+                'order.view', 'order.create', 'order.change_status',
+                'reservation.view', 'reservation.create',
+            ],
+            'delivery_person' => [
+                'order.view',
+                'delivery.view', 'delivery.track',
+            ],
+            'customer' => [
+                'order.create', 'order.view',
+                'review.view',
+                'reservation.create', 'reservation.view',
+                'loyalty.view',
+            ],
+        ];
 
-        // 2. Admin Restaurant
-        $restoAdmin = Role::firstOrCreate(['name' => 'restaurant-admin', 'guard_name' => 'web']);
-        $restoAdmin->syncPermissions([
-            'view restaurants', 'edit restaurants',
-            'view products', 'create products', 'edit products', 'delete products',
-            'view categories', 'create categories', 'edit categories', 'delete categories',
-            'view orders', 'update order status',
-            'view reviews', 'moderate reviews',
-            'view reports',
-        ]);
-
-        // 3. Manager
-        $manager = Role::firstOrCreate(['name' => 'manager', 'guard_name' => 'web']);
-        $manager->syncPermissions([
-            'view products', 'create products', 'edit products',
-            'view categories', 'create categories', 'edit categories',
-            'view orders', 'update order status',
-            'view reviews',
-        ]);
-
-        // 4. Client
-        $client = Role::firstOrCreate(['name' => 'client', 'guard_name' => 'web']);
-        $client->syncPermissions([
-            'view products',
-            'create orders', 'view orders',
-            'create reviews',
-        ]);
-
-        // 5. Livreur
-        $delivery = Role::firstOrCreate(['name' => 'delivery', 'guard_name' => 'web']);
-        $delivery->syncPermissions([
-            'view deliveries',
-            'update delivery status',
-        ]);
-
-        // 6. Staff
-        $staff = Role::firstOrCreate(['name' => 'staff', 'guard_name' => 'web']);
-        $staff->syncPermissions([
-            'view products',
-            'view orders',
-        ]);
-
-        // Assigner super-admin au premier utilisateur
-        $user = User::find(1);
-        if ($user) {
-            $user->assignRole('super-admin');
+        foreach ($roles as $roleName => $rolePermissions) {
+            $role = Role::create(['name' => $roleName, 'guard_name' => 'web']);
+            $role->givePermissionTo($rolePermissions);
         }
     }
 }

@@ -2,62 +2,178 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Coupon;
-use App\Models\Restaurant;
-use App\Models\Product;
-use App\Models\Category;
+use Illuminate\Database\Seeder;
 
 class CouponSeeder extends Seeder
 {
     public function run(): void
     {
-        $restaurants = Restaurant::all();
-        $couponTypes = [
-            ['type' => 'percentage', 'value' => 10],
-            ['type' => 'percentage', 'value' => 15],
-            ['type' => 'percentage', 'value' => 20],
-            ['type' => 'fixed_amount', 'value' => 5],
-            ['type' => 'fixed_amount', 'value' => 10],
-            ['type' => 'free_delivery', 'value' => 0],
+        $coupons = [
+            [
+                'restaurant_id' => 1,
+                'code' => 'BISTRO10',
+                'description' => '10% de réduction sur votre première commande',
+                'type' => 'percentage',
+                'value' => 10,
+                'min_order_amount' => 20.00,
+                'max_discount_amount' => 15.00,
+                'max_uses' => 100,
+                'used_count' => 0,
+                'max_uses_per_user' => 1,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addMonths(3),
+            ],
+            [
+                'restaurant_id' => 1,
+                'code' => 'BISTRO5',
+                'description' => '5€ de réduction dès 30€ d\'achat',
+                'type' => 'fixed_amount',
+                'value' => 5.00,
+                'min_order_amount' => 30.00,
+                'max_discount_amount' => null,
+                'max_uses' => 200,
+                'used_count' => 0,
+                'max_uses_per_user' => 3,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addMonth(),
+            ],
+            [
+                'restaurant_id' => 2,
+                'code' => 'PIZZA15',
+                'description' => '15% de réduction sur toutes les pizzas',
+                'type' => 'percentage',
+                'value' => 15,
+                'min_order_amount' => 15.00,
+                'max_discount_amount' => 10.00,
+                'max_uses' => 150,
+                'used_count' => 0,
+                'max_uses_per_user' => 2,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addMonths(2),
+            ],
+            [
+                'restaurant_id' => 2,
+                'code' => 'LIVRAISONG',
+                'description' => 'Livraison gratuite',
+                'type' => 'free_delivery',
+                'value' => 0,
+                'min_order_amount' => 20.00,
+                'max_discount_amount' => null,
+                'max_uses' => 999999, // Valeur élevée au lieu de NULL
+                'used_count' => 0,
+                'max_uses_per_user' => 999999, // Valeur élevée au lieu de NULL
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addYear(),
+            ],
+            [
+                'restaurant_id' => 3,
+                'code' => 'SUSHI20',
+                'description' => '20% de réduction sur les plateaux',
+                'type' => 'percentage',
+                'value' => 20,
+                'min_order_amount' => 30.00,
+                'max_discount_amount' => 20.00,
+                'max_uses' => 50,
+                'used_count' => 0,
+                'max_uses_per_user' => 1,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addWeeks(2),
+            ],
+            [
+                'restaurant_id' => 4,
+                'code' => 'BURGER8',
+                'description' => '8€ de réduction sur le menu duo',
+                'type' => 'fixed_amount',
+                'value' => 8.00,
+                'min_order_amount' => 25.00,
+                'max_discount_amount' => null,
+                'max_uses' => 75,
+                'used_count' => 0,
+                'max_uses_per_user' => 2,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addMonth(),
+            ],
+            [
+                'restaurant_id' => 5,
+                'code' => 'HEALTHY25',
+                'description' => '25% de réduction sur tous les bowls',
+                'type' => 'percentage',
+                'value' => 25,
+                'min_order_amount' => 15.00,
+                'max_discount_amount' => 10.00,
+                'max_uses' => 100,
+                'used_count' => 0,
+                'max_uses_per_user' => 1,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addMonths(2),
+            ],
+            [
+                'restaurant_id' => 5,
+                'code' => 'VEGAN10',
+                'description' => '10€ offerts pour les commandes vegan',
+                'type' => 'fixed_amount',
+                'value' => 10.00,
+                'min_order_amount' => 30.00,
+                'max_discount_amount' => null,
+                'max_uses' => 80,
+                'used_count' => 0,
+                'max_uses_per_user' => 2,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addMonths(3),
+            ],
+            [
+                'restaurant_id' => 1,
+                'code' => 'NOEL2024',
+                'description' => 'Menu de Noël à -30%',
+                'type' => 'percentage',
+                'value' => 30,
+                'min_order_amount' => 50.00,
+                'max_discount_amount' => 30.00,
+                'max_uses' => 50,
+                'used_count' => 0,
+                'max_uses_per_user' => 1,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => '2024-12-20 00:00:00',
+                'expires_at' => '2024-12-31 23:59:59',
+            ],
+            [
+                'restaurant_id' => 4,
+                'code' => 'WELCOME50',
+                'description' => '50% sur votre premier burger',
+                'type' => 'percentage',
+                'value' => 50,
+                'min_order_amount' => 10.00,
+                'max_discount_amount' => 8.00,
+                'max_uses' => 200,
+                'used_count' => 0,
+                'max_uses_per_user' => 1,
+                'is_active' => true,
+                'applies_to_all' => true,
+                'starts_at' => now(),
+                'expires_at' => now()->addMonths(6),
+            ],
         ];
-        
-        foreach ($restaurants as $restaurant) {
-            // Chaque restaurant a 2-3 coupons
-            $nbCoupons = rand(2, 3);
-            for ($i = 0; $i < $nbCoupons; $i++) {
-                $couponData = $couponTypes[array_rand($couponTypes)];
-                
-                $coupon = Coupon::create([
-                    'restaurant_id' => $restaurant->id,
-                    'code' => strtoupper(substr($restaurant->name, 0, 3)) . rand(100, 999),
-                    'description' => "Offre spéciale sur votre commande",
-                    'type' => $couponData['type'],
-                    'value' => $couponData['value'],
-                    'min_order_amount' => rand(1500, 3000) / 100,
-                    'max_discount_amount' => $couponData['type'] === 'percentage' ? rand(1000, 2000) / 100 : null,
-                    'max_uses' => rand(50, 200),
-                    'max_uses_per_user' => 1,
-                    'is_active' => true,
-                    'starts_at' => now(),
-                    'expires_at' => now()->addMonths(rand(1, 3)),
-                    'applies_to_all' => rand(0, 1),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-                
-                // Si le coupon ne s'applique pas à tout, attacher des produits spécifiques
-                if (!$coupon->applies_to_all) {
-                    $products = Product::where('restaurant_id', $restaurant->id)
-                                       ->inRandomOrder()
-                                       ->take(rand(3, 5))
-                                       ->get();
-                    
-                    foreach ($products as $product) {
-                        $coupon->products()->attach($product->id);
-                    }
-                }
-            }
+
+        foreach ($coupons as $couponData) {
+            Coupon::create($couponData);
         }
     }
 }

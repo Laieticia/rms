@@ -7,8 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
+use Spatie\Sluggable\HasSlug; // 1. IMPORTATION DU TRAIT AJOUTÉE ICI
+use Illuminate\Support\Str;
+
 
 class Restaurant extends Model
 {
@@ -165,7 +167,8 @@ class Restaurant extends Model
     {
         return $this->reviews()->count();
     }
-public function getFormattedAddressAttribute(): string
+
+    public function getFormattedAddressAttribute(): string
     {
         return "{$this->address}, {$this->postal_code} {$this->city}";
     }
@@ -266,7 +269,8 @@ public function getFormattedAddressAttribute(): string
 
         return $zone ? $zone->estimated_time : $this->estimated_delivery_time;
     }
-public function getTodayStats(): array
+
+    public function getTodayStats(): array
     {
         $today = today();
         

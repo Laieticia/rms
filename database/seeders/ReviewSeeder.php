@@ -2,47 +2,172 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Review;
-use App\Models\User;
-use App\Models\Restaurant;
-use App\Models\Order;
+use Illuminate\Database\Seeder;
 
 class ReviewSeeder extends Seeder
 {
     public function run(): void
     {
-        $users = User::all();
-        $restaurants = Restaurant::all();
-        $orders = Order::all();
-        
-        $comments = [
-            'Très bon restaurant, je recommande!',
-            'Plats délicieux, service rapide.',
-            'Un peu cher mais qualité au rendez-vous.',
-            'Livraison rapide, commande conforme.',
-            'Bonne expérience, je reviendrai.',
-            'Rapport qualité prix excellent.',
-            'Service client réactif.',
+        $reviews = [
+            [
+                'user_id' => 11,
+                'restaurant_id' => 1,
+                'order_id' => 1,
+                'rating' => 5,
+                'food_rating' => 5,
+                'service_rating' => 4,
+                'delivery_rating' => 5,
+                'comment' => 'Excellent restaurant ! Le bœuf bourguignon était délicieux, la livraison rapide et le livreur très professionnel.',
+                'is_approved' => true,
+                'is_featured' => true,
+                'admin_response' => 'Merci beaucoup pour votre avis ! Au plaisir de vous servir à nouveau.',
+                'responded_at' => now()->subDays(5),
+            ],
+            [
+                'user_id' => 12,
+                'restaurant_id' => 1,
+                'order_id' => 2,
+                'rating' => 4,
+                'food_rating' => 5,
+                'service_rating' => 4,
+                'delivery_rating' => 3,
+                'comment' => 'Très bonne cuisine française authentique. Le magret était parfait. Petit bémol sur le temps de livraison un peu long.',
+                'is_approved' => true,
+                'is_featured' => false,
+            ],
+            [
+                'user_id' => 13,
+                'restaurant_id' => 2,
+                'order_id' => 3,
+                'rating' => 5,
+                'food_rating' => 5,
+                'service_rating' => 5,
+                'delivery_rating' => 5,
+                'comment' => 'Meilleure pizza de Paris ! La pâte est incroyable, les ingrédients frais. Je recommande à 100% !',
+                'is_approved' => true,
+                'is_featured' => true,
+                'admin_response' => 'Grazie mille ! Nous sommes ravis que vous ayez apprécié nos pizzas.',
+                'responded_at' => now()->subDays(3),
+            ],
+            [
+                'user_id' => 14,
+                'restaurant_id' => 2,
+                'order_id' => 4,
+                'rating' => 4,
+                'food_rating' => 4,
+                'service_rating' => 5,
+                'delivery_rating' => null,
+                'comment' => 'Très bon restaurant italien, les pâtes sont fraîches et savoureuses. Service rapide.',
+                'is_approved' => true,
+                'is_featured' => false,
+            ],
+            [
+                'user_id' => 15,
+                'restaurant_id' => 3,
+                'order_id' => 5,
+                'rating' => 5,
+                'food_rating' => 5,
+                'service_rating' => 5,
+                'delivery_rating' => 5,
+                'comment' => 'Sushis d\'une fraîcheur exceptionnelle ! Le saumon fond dans la bouche. Livraison impeccable.',
+                'is_approved' => true,
+                'is_featured' => true,
+            ],
+            [
+                'user_id' => 11,
+                'restaurant_id' => 3,
+                'order_id' => 6,
+                'rating' => 3,
+                'food_rating' => 4,
+                'service_rating' => 3,
+                'delivery_rating' => 2,
+                'comment' => 'Bons sushis mais livraison très en retard. Dommage car la qualité est au rendez-vous.',
+                'is_approved' => true,
+                'is_featured' => false,
+                'admin_response' => 'Nous sommes désolés pour ce désagrément. Nous travaillons à améliorer nos délais de livraison.',
+                'responded_at' => now()->subDays(1),
+            ],
+            [
+                'user_id' => 16,
+                'restaurant_id' => 4,
+                'order_id' => 7,
+                'rating' => 4,
+                'food_rating' => 5,
+                'service_rating' => 4,
+                'delivery_rating' => 4,
+                'comment' => 'Burgers très gourmands ! Les frites maison sont un délice. Bon rapport qualité-prix.',
+                'is_approved' => true,
+                'is_featured' => false,
+            ],
+            [
+                'user_id' => 17,
+                'restaurant_id' => 4,
+                'order_id' => 8,
+                'rating' => 5,
+                'food_rating' => 5,
+                'service_rating' => 5,
+                'delivery_rating' => null,
+                'comment' => 'Super expérience sur place ! Le Double Cheese est monstrueux et délicieux. Service au top !',
+                'is_approved' => true,
+                'is_featured' => true,
+                'admin_response' => 'Merci pour votre visite ! Revenez vite tester nos nouveautés.',
+                'responded_at' => now()->subDays(2),
+            ],
+            [
+                'user_id' => 18,
+                'restaurant_id' => 5,
+                'order_id' => 9,
+                'rating' => 5,
+                'food_rating' => 5,
+                'service_rating' => 5,
+                'delivery_rating' => 5,
+                'comment' => 'Enfin un restaurant vegan qui propose des plats savoureux et créatifs ! Le Buddha Bowl est excellent.',
+                'is_approved' => true,
+                'is_featured' => true,
+            ],
+            [
+                'user_id' => 14,
+                'restaurant_id' => 5,
+                'order_id' => 10,
+                'rating' => 4,
+                'food_rating' => 4,
+                'service_rating' => 4,
+                'delivery_rating' => 4,
+                'comment' => 'Très bons bowls et smoothies. Idéal pour un déjeuner sain et équilibré. Je reviendrai !',
+                'is_approved' => true,
+                'is_featured' => false,
+            ],
+            [
+                'user_id' => 12,
+                'restaurant_id' => 3,
+                'order_id' => null,
+                'rating' => 5,
+                'food_rating' => 5,
+                'service_rating' => 5,
+                'delivery_rating' => null,
+                'comment' => 'J\'y suis allée en personne, l\'ambiance est très zen et les sushis sont délicieux !',
+                'is_approved' => true,
+                'is_featured' => false,
+            ],
+            [
+                'user_id' => 13,
+                'restaurant_id' => 1,
+                'order_id' => null,
+                'rating' => 4,
+                'food_rating' => 4,
+                'service_rating' => 5,
+                'delivery_rating' => null,
+                'comment' => 'Très bon restaurant, cadre agréable et personnel attentionné. Les prix sont un peu élevés.',
+                'is_approved' => true,
+                'is_featured' => false,
+                'admin_response' => 'Merci pour votre avis. Nous proposons des produits de qualité qui justifient nos prix.',
+                'responded_at' => now()->subDays(7),
+            ],
         ];
 
-        foreach ($orders as $order) {
-            if (rand(0, 1)) {
-                Review::create([
-                    'user_id' => $order->user_id,
-                    'restaurant_id' => $order->restaurant_id,
-                    'order_id' => $order->id,
-                    'product_id' => null,
-                    'rating' => rand(3, 5),
-                    'food_rating' => rand(3, 5),
-                    'delivery_rating' => rand(3, 5),
-                    'service_rating' => rand(3, 5),
-                    'comment' => $comments[array_rand($comments)],
-                    'is_approved' => true,
-                    'helpful_count' => rand(0, 20),
-                    'created_at' => $order->created_at,
-                ]);
-            }
+        foreach ($reviews as $reviewData) {
+            Review::create($reviewData);
         }
     }
 }

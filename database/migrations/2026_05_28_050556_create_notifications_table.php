@@ -67,25 +67,7 @@ return new class extends Migration
             $table->unique(['user_id', 'product_id']);
         });
 
-        Schema::create('addresses', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('label'); // Domicile, Travail, etc.
-            $table->string('street_address');
-            $table->string('apartment')->nullable();
-            $table->string('city');
-            $table->string('state')->nullable();
-            $table->string('postal_code');
-            $table->string('country')->default('FR');
-            $table->decimal('latitude', 10, 8)->nullable();
-            $table->decimal('longitude', 11, 8)->nullable();
-            $table->text('instructions')->nullable();
-            $table->boolean('is_default')->default(false);
-            $table->timestamps();
-            
-            $table->index(['user_id', 'is_default']);
-        });
-            Schema::create('delivery_zones', function (Blueprint $table) {
+        Schema::create('delivery_zones', function (Blueprint $table) {
             $table->id();
             $table->foreignId('restaurant_id')->constrained()->onDelete('cascade');
             $table->string('name');
@@ -102,7 +84,6 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('delivery_zones');
-        Schema::dropIfExists('addresses');
         Schema::dropIfExists('favorites');
         Schema::dropIfExists('reservations');
         Schema::dropIfExists('notification_settings');

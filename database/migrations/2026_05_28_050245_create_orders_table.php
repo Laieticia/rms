@@ -9,6 +9,66 @@ return new class extends Migration
 {
     public function up()
     {
+
+        Schema::create('coupons', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('restaurant_id')->constrained()->onDelete('cascade');
+            $table->string('code')->unique();
+            $table->string('description')->nullable();
+            $table->enum('type', ['percentage', 'fixed_amount', 'free_delivery']);
+            $table->decimal('value', 10, 2);
+            $table->decimal('min_order_amount', 10, 2)->default(0);
+            $table->decimal('max_discount_amount', 10, 2)->nullable();
+            $table->integer('max_uses')->nullable();
+            $table->integer('used_count')->default(0);
+            $table->integer('max_uses_per_user')->default(1);
+            $table->boolean('is_active')->default(true);
+            $table->dateTime('starts_at')->nullable();
+            $table->dateTime('expires_at')->nullable();
+            $table->boolean('applies_to_all')->default(true);
+            $table->timestamps();
+            
+            $table->index(['code', 'is_active']);
+        });
+
+        // Produits/catégories auxquels s'applique le coupon
+        Schema::create('coupon_product', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('coupon_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+            
+            $table->unique(['coupon_id', 'product_id']);
+        });
+
+        Schema::create('coupon_category', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('coupon_id')->constrained()->onDelete('cascade');
+            $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->timestamps();
+            
+            $table->unique(['coupon_id', 'category_id']);
+        });
+
+        Schema::create('addresses', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('label'); // Domicile, Travail, etc.
+            $table->string('street_address');
+            $table->string('apartment')->nullable();
+            $table->string('city');
+            $table->string('state')->nullable();
+            $table->string('postal_code');
+            $table->string('country')->default('FR');
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
+            $table->text('instructions')->nullable();
+            $table->boolean('is_default')->default(false);
+            $table->timestamps();
+            
+            $table->index(['user_id', 'is_default']);
+        });
+
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('restaurant_id')->constrained()->onDelete('cascade');
@@ -138,5 +198,9 @@ return new class extends Migration
         Schema::dropIfExists('order_item_options');
         Schema::dropIfExists('order_items');
         Schema::dropIfExists('orders');
+        Schema::dropIfExists('addresses');
+        Schema::dropIfExists('coupon_category');
+        Schema::dropIfExists('coupon_product');
+        Schema::dropIfExists('coupons');
     }
 };

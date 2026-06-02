@@ -3,31 +3,26 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
         $this->call([
-             RolesAndPermissionsSeeder::class,
+            RolesAndPermissionsSeeder::class,
             UserSeeder::class,
             RestaurantSeeder::class,
             CategorySeeder::class,
             ProductSeeder::class,
-            ProductImageSeeder::class,
-            ProductVariantSeeder::class,
-            ProductOptionSeeder::class,
-            ProductOptionItemSeeder::class,
             MenuSeeder::class,
-            MenuItemSeeder::class,
             CouponSeeder::class,
-            OrderSeeder::class,
-            OrderItemSeeder::class,
-            ReviewSeeder::class,
             AddressSeeder::class,
-            ReservationSeeder::class,
-            FavoriteSeeder::class,
+            OrderSeeder::class,
+            ReviewSeeder::class,
+            LoyaltyRewardSeeder::class,
             DeliveryZoneSeeder::class,
+            ReservationSeeder::class,
             NotificationSeeder::class,
         ]);
     }

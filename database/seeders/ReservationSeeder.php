@@ -2,38 +2,161 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Reservation;
-use App\Models\User;
-use App\Models\Restaurant;
+use Illuminate\Database\Seeder;
 
 class ReservationSeeder extends Seeder
 {
     public function run(): void
     {
-        $users = User::all();
-        $restaurants = Restaurant::all();
-        $statuses = ['pending', 'confirmed', 'arrived', 'completed', 'cancelled'];
-        
-        for ($i = 1; $i <= 10; $i++) {
-            $user = $users->random();
-            $restaurant = $restaurants->random();
-            $date = now()->addDays(rand(1, 30));
-            
-            Reservation::create([
-                'restaurant_id' => $restaurant->id,
-                'user_id' => $user->id,
-                'reservation_number' => 'RES-' . str_pad($i, 6, '0', STR_PAD_LEFT),
-                'date' => $date,
-                'time' => rand(12, 21) . ':00:00',
-                'guests_count' => rand(2, 8),
-                'special_requests' => rand(0, 1) ? 'Pas d\'oignons svp' : null,
-                'status' => $statuses[array_rand($statuses)],
-                'customer_name' => $user->name,
-                'customer_phone' => '06' . rand(10000000, 99999999),
-                'customer_email' => $user->email,
-                'created_at' => now(),
-            ]);
+        $reservations = [
+            [
+                'restaurant_id' => 1,
+                'user_id' => 11,
+                'reservation_number' => 'RES-20240601-0001',
+                'date' => '2024-06-15',
+                'time' => '19:30:00',
+                'guests_count' => 4,
+                'special_requests' => 'Table près de la fenêtre si possible',
+                'status' => 'confirmed',
+                'customer_name' => 'Lucas Garcia',
+                'customer_phone' => '0611111111',
+                'customer_email' => 'lucas@email.com',
+            ],
+            [
+                'restaurant_id' => 1,
+                'user_id' => 12,
+                'reservation_number' => 'RES-20240602-0001',
+                'date' => '2024-06-16',
+                'time' => '20:00:00',
+                'guests_count' => 2,
+                'special_requests' => 'Anniversaire, possibilité de gâteau surprise ?',
+                'status' => 'confirmed',
+                'customer_name' => 'Léa Martinez',
+                'customer_phone' => '0622222222',
+                'customer_email' => 'lea@email.com',
+            ],
+            [
+                'restaurant_id' => 1,
+                'user_id' => 13,
+                'reservation_number' => 'RES-20240603-0001',
+                'date' => '2024-06-20',
+                'time' => '12:30:00',
+                'guests_count' => 6,
+                'special_requests' => 'Menu végétarien pour 2 personnes',
+                'status' => 'pending',
+                'customer_name' => 'Hugo Robin',
+                'customer_phone' => '0633333333',
+                'customer_email' => 'hugo@email.com',
+            ],
+            [
+                'restaurant_id' => 2,
+                'user_id' => 14,
+                'reservation_number' => 'RES-20240604-0001',
+                'date' => '2024-06-18',
+                'time' => '19:00:00',
+                'guests_count' => 8,
+                'special_requests' => 'Grande table pour groupe, anniversaire enfant',
+                'status' => 'confirmed',
+                'customer_name' => 'Chloé Durand',
+                'customer_phone' => '0644444444',
+                'customer_email' => 'chloe@email.com',
+            ],
+            [
+                'restaurant_id' => 2,
+                'user_id' => 15,
+                'reservation_number' => 'RES-20240605-0001',
+                'date' => '2024-06-22',
+                'time' => '20:30:00',
+                'guests_count' => 3,
+                'special_requests' => null,
+                'status' => 'confirmed',
+                'customer_name' => 'Gabriel Lefebvre',
+                'customer_phone' => '0655555555',
+                'customer_email' => 'gabriel@email.com',
+            ],
+            [
+                'restaurant_id' => 3,
+                'user_id' => 16,
+                'reservation_number' => 'RES-20240606-0001',
+                'date' => '2024-06-25',
+                'time' => '19:30:00',
+                'guests_count' => 2,
+                'special_requests' => 'Pas de wasabi svp',
+                'status' => 'pending',
+                'customer_name' => 'Alice Morel',
+                'customer_phone' => '0666666666',
+                'customer_email' => 'alice@email.com',
+            ],
+            [
+                'restaurant_id' => 3,
+                'user_id' => 17,
+                'reservation_number' => 'RES-20240607-0001',
+                'date' => '2024-06-28',
+                'time' => '12:00:00',
+                'guests_count' => 5,
+                'special_requests' => 'Menu découverte pour tout le groupe',
+                'status' => 'confirmed',
+                'customer_name' => 'Raphaël Fournier',
+                'customer_phone' => '0677777777',
+                'customer_email' => 'raphael@email.com',
+            ],
+            [
+                'restaurant_id' => 4,
+                'user_id' => 18,
+                'reservation_number' => 'RES-20240608-0001',
+                'date' => '2024-07-01',
+                'time' => '13:00:00',
+                'guests_count' => 4,
+                'special_requests' => null,
+                'status' => 'pending',
+                'customer_name' => 'Camille Girard',
+                'customer_phone' => '0688888888',
+                'customer_email' => 'camille@email.com',
+            ],
+            [
+                'restaurant_id' => 4,
+                'user_id' => 11,
+                'reservation_number' => 'RES-20240609-0001',
+                'date' => '2024-07-05',
+                'time' => '20:00:00',
+                'guests_count' => 10,
+                'special_requests' => 'Soirée d\'entreprise, menu à 25€/personne',
+                'status' => 'confirmed',
+                'customer_name' => 'Lucas Garcia',
+                'customer_phone' => '0611111111',
+                'customer_email' => 'lucas@email.com',
+            ],
+            [
+                'restaurant_id' => 5,
+                'user_id' => 12,
+                'reservation_number' => 'RES-20240610-0001',
+                'date' => '2024-07-10',
+                'time' => '12:30:00',
+                'guests_count' => 3,
+                'special_requests' => 'Que des plats vegan svp',
+                'status' => 'confirmed',
+                'customer_name' => 'Léa Martinez',
+                'customer_phone' => '0622222222',
+                'customer_email' => 'lea@email.com',
+            ],
+            [
+                'restaurant_id' => 5,
+                'user_id' => 14,
+                'reservation_number' => 'RES-20240611-0001',
+                'date' => '2024-07-15',
+                'time' => '19:00:00',
+                'guests_count' => 2,
+                'special_requests' => 'Table en terrasse si beau temps',
+                'status' => 'pending',
+                'customer_name' => 'Chloé Durand',
+                'customer_phone' => '0644444444',
+                'customer_email' => 'chloe@email.com',
+            ],
+        ];
+
+        foreach ($reservations as $reservationData) {
+            Reservation::create($reservationData);
         }
     }
 }
