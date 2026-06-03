@@ -117,6 +117,7 @@ Route::middleware(['auth', 'role:super-admin|restaurant-admin|cashier'])->group(
 Route::middleware(['auth', 'role:super-admin|restaurant-admin|cashier|client'])->group(function () {
     
     // Clients (lecture seule pour les clients)
+    
     Route::get('/customers', [CustomersController::class, 'index'])->name('customers.index');
     Route::get('/customers/create', [CustomersController::class, 'create'])->name('customers.create');
     Route::post('/customers', [CustomersController::class, 'store'])->name('customers.store');
