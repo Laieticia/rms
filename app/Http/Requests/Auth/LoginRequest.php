@@ -50,6 +50,16 @@ class LoginRequest extends FormRequest
             ]);
         }
 
+        // Vérifier si l'utilisateur est actif
+        $user = Auth::user();
+        if (!$user->is_active || $user->is_blocked) {
+            Auth::logout();
+            
+            throw ValidationException::withMessages([
+                'email' => 'Votre compte est désactivé ou bloqué. Contactez l\'administrateur.',
+            ]);
+        }
+
         RateLimiter::clear($this->throttleKey());
     }
 

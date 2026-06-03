@@ -213,5 +213,22 @@ class UserSeeder extends Seeder
                 $user->assignRole('customer');
             }
         }
+
+        $this->command->info('✅ Données prêtes :');
+        $this->command->table(
+            ['Email', 'Rôle', 'Mot de passe'],
+            [
+                ['admin@restaurant.com', 'super_admin', 'password123'],
+                ['marie@restaurant.com', 'admin', 'password123'],
+                ['pierre@restaurant.com', 'manager', 'password123'],
+                ['sophie@restaurant.com', 'manager', 'password123'],
+                ['antoine@restaurant.com', 'chef', 'password123'],
+                ['julie@restaurant.com', 'chef', 'password123'],
+                ['thomas@restaurant.com', 'waiter', 'password123'],
+                ['laura@restaurant.com', 'waiter', 'password123'],
+                ['nicolas@restaurant.com', 'delivery_person', 'password123'],
+                ['emma@restaurant.com', 'delivery_person', 'password123'],
+            ]
+        );
     }
 }

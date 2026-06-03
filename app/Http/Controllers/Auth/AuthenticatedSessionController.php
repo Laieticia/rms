@@ -28,7 +28,26 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = Auth::user();
+
+        // Vérifier si le compte est actif
+        if (!$user->is_active || $user->is_blocked) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'Votre compte est désactivé ou bloqué.',
+            ]);
+        }
+
+        // Enregistrer la connexion
+        $user->update([
+            'last_login_at' => now(),
+            'last_login_ip' => $request->ip(),
+        ]);
+
+        return redirect()->intended($this->redirectPath($user));
     }
 
     /**
@@ -44,4 +63,21 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
+    /**
+     * Get the post-login redirect path.
+     */
+    protected function redirectPath($user): string
+    {
+        if ($user->hasRole(['super_admin', 'admin', 'manager'])) {
+            return route('admin.dashboard');
+        } elseif ($user->hasRole(['chef', 'waiter'])) {
+            return route('admin.orders.index');
+        } elseif ($user->hasRole('delivery_person')) {
+            return route('delivery.dashboard');
+        }
+
+        return route('home');
+    }
+
 }
