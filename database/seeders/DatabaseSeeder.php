@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             DeliveryZoneSeeder::class,
             ReservationSeeder::class,
             NotificationSeeder::class,
+            OperatingHourSeeder::class,
+            SpecialDaySeeder::class,
         ]);
     }
 }

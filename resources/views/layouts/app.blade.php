@@ -1,10 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>POS Dash | Responsive Bootstrap 4 Admin Dashboard Template</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'RestaurantMS') - Gestion Restaurant</title>
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{url('admin/assets/images/favicon.ico')}}" />
@@ -13,6 +14,7 @@
     <link rel="stylesheet" href="{{url('admin/assets/vendor/@fortawesome/fontawesome-free/css/all.min.css')}}">
     <link rel="stylesheet" href="{{url('admin/assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css')}}">
     <link rel="stylesheet" href="{{url('admin/assets/vendor/remixicon/fonts/remixicon.css')}}">
+    @stack('styles')
 </head>
 
 <body class="  ">
@@ -47,6 +49,8 @@
 
     <!-- app JavaScript -->
     <script src="{{url('admin/assets/js/app.js')}}"></script>
+
+    @stack('scripts')
 </body>
 
 </html>
