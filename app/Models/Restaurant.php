@@ -137,16 +137,6 @@ class Restaurant extends Model
         return $this->hasMany(DeliveryZone::class);
     }
 
-    public function operatingHours(): HasMany
-    {
-        return $this->hasMany(OperatingHour::class);
-    }
-
-    public function specialDays(): HasMany
-    {
-        return $this->hasMany(SpecialDay::class);
-    }
-
     // Accesseurs
     public function getLogoUrlAttribute(): ?string
     {
@@ -342,5 +332,86 @@ class Restaurant extends Model
                 ->having('order_count', '>', 1)
                 ->count(),
         ];
+    }
+
+
+    public function operatingHours(): HasMany
+    {
+        return $this->hasMany(OperatingHour::class)->orderByRaw("FIELD(day, 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday')");
+    }
+
+
+    public function specialDays(): HasMany
+    {
+        return $this->hasMany(SpecialDay::class)->orderBy('date');
+    }
+
+    // Ajoutez cette méthode pour vérifier si le restaurant est ouvert
+    public function isOpenNow(): bool
+    {
+        // Vérifier d'abord les jours spéciaux
+        $specialDay = $this->specialDays()->today()->first();
+        
+        if ($specialDay) {
+            if ($specialDay->is_closed) {
+                return false;
+            }
+            
+            if ($specialDay->open_time && $specialDay->close_time) {
+                $now = now()->format('H:i:s');
+                return $now >= $specialDay->open_time->format('H:i:s') && 
+                    $now <= $specialDay->close_time->format('H:i:s');
+            }
+        }
+        
+        // Vérifier les horaires normaux
+        $today = strtolower(now()->englishDayOfWeek);
+        $operatingHour = $this->operatingHours()->where('day', $today)->first();
+        
+        if (!$operatingHour || $operatingHour->is_closed) {
+            return false;
+        }
+        
+        return $operatingHour->is_open_now;
+    }
+
+    // Ajoutez cette méthode pour obtenir les horaires d'aujourd'hui
+    public function getTodayHours(): ?array
+    {
+        // Vérifier d'abord les jours spéciaux
+        $specialDay = $this->specialDays()->today()->first();
+        
+        if ($specialDay) {
+            if ($specialDay->is_closed) {
+                return ['status' => 'closed', 'reason' => $specialDay->name];
+            }
+            
+            if ($specialDay->open_time && $specialDay->close_time) {
+                return [
+                    'status' => 'special',
+                    'open' => $specialDay->open_time->format('H:i'),
+                    'close' => $specialDay->close_time->format('H:i'),
+                    'reason' => $specialDay->name,
+                ];
+            }
+        }
+        
+        // Horaires normaux
+        $today = strtolower(now()->englishDayOfWeek);
+        $operatingHour = $this->operatingHours()->where('day', $today)->first();
+        
+        if ($operatingHour) {
+            if ($operatingHour->is_closed) {
+                return ['status' => 'closed'];
+            }
+            
+            return [
+                'status' => 'open',
+                'open' => $operatingHour->open_time->format('H:i'),
+                'close' => $operatingHour->close_time->format('H:i'),
+            ];
+        }
+        
+        return null;
     }
 }

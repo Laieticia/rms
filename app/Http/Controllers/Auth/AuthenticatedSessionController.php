@@ -37,7 +37,7 @@ class AuthenticatedSessionController extends Controller
             $request->session()->regenerateToken();
 
             return back()->withErrors([
-                'email' => 'Votre compte est désactivé ou bloqué.',
+                'email' => 'Votre compte est désactivé ou bloqué. Contactez l\'administrateur.',
             ]);
         }
 

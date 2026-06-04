@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\Restaurant;
+use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -22,21 +22,49 @@ class DashboardController extends Controller
         $period = $request->get('period', 'today');
         $dateRange = $this->getDateRange($period);
 
-        // Statistiques générales
-        $stats = [
-            'total_orders' => $this->getOrderCount($restaurantId, $dateRange),
-            'total_revenue' => $this->getTotalRevenue($restaurantId, $dateRange),
-            'average_order' => $this->getAverageOrder($restaurantId, $dateRange),
-            'total_customers' => $this->getCustomerCount($restaurantId, $dateRange),
+        // Statistiques du jour (pour les cartes du haut)
+        $todayStats = [
+            'orders' => $this->getOrderCount($restaurantId, $dateRange),
+            'revenue' => $this->getTotalRevenue($restaurantId, $dateRange),
             'new_customers' => $this->getNewCustomerCount($restaurantId, $dateRange),
+            'average_order' => $this->getAverageOrder($restaurantId, $dateRange),
+        ];
+
+        // Statistiques détaillées
+        $stats = [
+            'total_orders' => $todayStats['orders'],
+            'total_revenue' => $todayStats['revenue'],
+            'average_order' => $todayStats['average_order'],
+            'total_customers' => $this->getCustomerCount($restaurantId, $dateRange),
+            'new_customers' => $todayStats['new_customers'],
             'pending_orders' => $this->getOrderCountByStatus($restaurantId, 'pending'),
             'preparing_orders' => $this->getOrderCountByStatus($restaurantId, 'preparing'),
             'ready_orders' => $this->getOrderCountByStatus($restaurantId, 'ready'),
             'in_delivery_orders' => $this->getOrderCountByStatus($restaurantId, 'in_delivery'),
         ];
 
-        // Commandes récentes
-        $recentOrders = $this->getRecentOrders($restaurantId);
+        // Commandes en attente
+        $pendingOrders = Order::with(['user', 'items.product'])
+            ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+            ->where('status', 'pending')
+            ->latest()
+            ->take(10)
+            ->get();
+
+        // Commandes récentes (tous statuts confondus)
+        $recentOrders = Order::with(['user', 'items.product'])
+            ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+            ->latest()
+            ->take(10)
+            ->get();
+
+        // Commandes actives
+        $activeOrders = Order::with(['user', 'items.product'])
+            ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+            ->whereIn('status', ['confirmed', 'preparing', 'ready', 'in_delivery'])
+            ->latest()
+            ->take(10)
+            ->get();
 
         // Produits populaires
         $topProducts = $this->getTopProducts($restaurantId, $dateRange);
@@ -51,9 +79,12 @@ class DashboardController extends Controller
         $recentReviews = $this->getRecentReviews($restaurantId);
 
         return view('admin.dashboard', compact(
+            'todayStats',
             'stats',
             'period',
+            'pendingOrders',
             'recentOrders',
+            'activeOrders',
             'topProducts',
             'salesChart',
             'orderTypes',
@@ -66,8 +97,8 @@ class DashboardController extends Controller
         return match($period) {
             'today' => [Carbon::today(), Carbon::now()],
             'yesterday' => [Carbon::yesterday(), Carbon::yesterday()->endOfDay()],
-            'week' => [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()],
-            'month' => [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()],
+            'week' => [Carbon::now()->startOfWeek(), Carbon::now()],
+            'month' => [Carbon::now()->startOfMonth(), Carbon::now()],
             'year' => [Carbon::now()->startOfYear(), Carbon::now()],
             default => [Carbon::today(), Carbon::now()],
         };
@@ -90,10 +121,10 @@ class DashboardController extends Controller
 
     protected function getAverageOrder($restaurantId, array $dateRange): float
     {
-        return Order::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+        return round(Order::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
             ->whereBetween('created_at', $dateRange)
             ->where('payment_status', 'paid')
-            ->avg('total') ?? 0;
+            ->avg('total') ?? 0, 2);
     }
 
     protected function getCustomerCount($restaurantId, array $dateRange): int
@@ -125,32 +156,23 @@ class DashboardController extends Controller
             ->count();
     }
 
-    protected function getRecentOrders($restaurantId)
-    {
-        return Order::with(['user', 'items.product'])
-            ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
-            ->latest()
-            ->take(10)
-            ->get();
-    }
-
     protected function getTopProducts($restaurantId, array $dateRange)
     {
         return Product::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
-            ->withCount(['orderItems as total_ordered' => function($query) use ($dateRange) {
+            ->withCount(['orderItems as total_sold' => function($query) use ($dateRange) {
                 $query->whereHas('order', function($q) use ($dateRange) {
                     $q->whereBetween('created_at', $dateRange)
                       ->where('payment_status', 'paid');
                 });
             }])
-            ->orderByDesc('total_ordered')
-            ->take(10)
+            ->orderByDesc('total_sold')
+            ->take(5)
             ->get();
     }
 
     protected function getSalesChart($restaurantId)
     {
-        $days = collect(range(6, 0))->map(function($day) use ($restaurantId) {
+        return collect(range(6, 0))->map(function($day) use ($restaurantId) {
             $date = Carbon::now()->subDays($day);
             
             $revenue = Order::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
@@ -168,8 +190,6 @@ class DashboardController extends Controller
                 'orders' => $count,
             ];
         });
-
-        return $days;
     }
 
     protected function getOrderTypeDistribution($restaurantId, array $dateRange)
@@ -183,7 +203,7 @@ class DashboardController extends Controller
 
     protected function getRecentReviews($restaurantId)
     {
-        return \App\Models\Review::with(['user', 'order'])
+        return Review::with(['user', 'order'])
             ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
             ->latest()
             ->take(5)

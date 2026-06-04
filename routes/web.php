@@ -3,7 +3,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CouponController;
-use App\Http\Controllers\Admin\OrderController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
@@ -16,8 +16,31 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\OrderController;
 
 use Illuminate\Support\Facades\Route;
+
+
+// Route de test - À SUPPRIMER après vérification
+// Route::get('/test-auth', function () {
+//     $user = auth()->user();
+    
+//     return response()->json([
+//         'authenticated' => auth()->check(),
+//         'user_id' => $user->id ?? null,
+//         'user_name' => $user->full_name ?? null,
+//         'is_active' => $user->is_active ?? null,
+//         'is_blocked' => $user->is_blocked ?? null,
+//         'roles' => $user ? $user->getRoleNames() : [],
+//         'permissions' => $user ? $user->getAllPermissions()->pluck('name') : [],
+//     ]);
+// })->middleware('auth');
+
+// // Route test admin
+// Route::get('/test-admin', function () {
+//     return 'Vous avez accès à l\'admin !';
+// })->middleware(['auth', 'admin.access']);
+
 
 // Accueil
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -42,8 +65,10 @@ Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear')
 Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon');
 Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
-// Checkout
-Route::middleware('auth')->group(function () {
+require __DIR__.'/auth.php';
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
     
@@ -51,24 +76,24 @@ Route::middleware('auth')->group(function () {
     Route::get('/orders/{order}/track', [OrderController::class, 'track'])->name('orders.track');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::post('/orders/{order}/review', [OrderController::class, 'addReview'])->name('orders.review');
-});
-
-// Profil
-Route::middleware('auth')->prefix('profile')->name('profile.')->group(function () {
-    Route::get('/', [ProfileController::class, 'index'])->name('index');
-    Route::put('/', [ProfileController::class, 'update'])->name('update');
-    Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
-    Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
-    Route::get('/orders', [ProfileController::class, 'orders'])->name('orders');
-    Route::get('/orders/{order}', [ProfileController::class, 'orderDetail'])->name('orders.show');
-    Route::get('/favorites', [ProfileController::class, 'favorites'])->name('favorites');
-    Route::post('/favorites/toggle', [ProfileController::class, 'toggleFavorite'])->name('favorites.toggle');
-    Route::post('/addresses', [ProfileController::class, 'addAddress'])->name('addresses.store');
-    Route::delete('/addresses/{address}', [ProfileController::class, 'deleteAddress'])->name('addresses.destroy');
+    
+    // Profil
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'index'])->name('index');
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
+        Route::get('/orders', [ProfileController::class, 'orders'])->name('orders');
+        Route::get('/orders/{order}', [ProfileController::class, 'orderDetail'])->name('orders.show');
+        Route::get('/favorites', [ProfileController::class, 'favorites'])->name('favorites');
+        Route::post('/favorites/toggle', [ProfileController::class, 'toggleFavorite'])->name('favorites.toggle');
+        Route::post('/addresses', [ProfileController::class, 'addAddress'])->name('addresses.store');
+        Route::delete('/addresses/{address}', [ProfileController::class, 'deleteAddress'])->name('addresses.destroy');
+    });
 });
 
 // Admin
-Route::middleware(['auth', 'role:super_admin,admin,manager,chef,waiter'])
+Route::middleware(['auth', 'admin.access'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -89,14 +114,14 @@ Route::middleware(['auth', 'role:super_admin,admin,manager,chef,waiter'])
         Route::resource('menus', AdminMenuController::class);
         
         // Commandes
-        Route::resource('orders', OrderController::class);
-        Route::post('/orders/{order}/status', [OrderController::class, 'updateStatus'])
+        Route::resource('orders', AdminOrderController::class);
+        Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
             ->name('orders.status');
-        Route::post('/orders/{order}/delivery', [OrderController::class, 'assignDelivery'])
+        Route::post('/orders/{order}/delivery', [AdminOrderController::class, 'assignDelivery'])
             ->name('orders.delivery');
-        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])
+        Route::post('/orders/{order}/cancel', [AdminOrderController::class, 'cancel'])
             ->name('orders.cancel');
-        Route::get('/orders/{order}/print', [OrderController::class, 'print'])
+        Route::get('/orders/{order}/print', [AdminOrderController::class, 'print'])
             ->name('orders.print');
         
         // Coupons
@@ -126,4 +151,3 @@ Route::middleware(['auth', 'role:super_admin,admin,manager,chef,waiter'])
 
     });
 
-require __DIR__.'/auth.php';
