@@ -237,13 +237,19 @@
                                                 class="rounded-top img-fluid mb-4">
                                             <img src="{{ url('admin/assets/images/user/1.png') }}" alt="profile-img"
                                                 class="rounded profile-img img-fluid avatar-70">
+                                            {{-- <img src="{{ auth()->user()->avatar_url }}" class="rounded-circle" width="35" height="35" alt=""> --}}
                                         </div>
                                         <div class="p-3">
                                             <h5 class="mb-1">JoanDuo@property.com</h5>
                                             <p class="mb-0">Since 10 march, 2020</p>
                                             <div class="d-flex align-items-center justify-content-center mt-3">
                                                 <a href="{{ url('admin/app/user-profile.html') }}" class="btn border mr-2">Profile</a>
-                                                <a href="auth-sign-in.html') }}" class="btn border">Sign Out</a>
+                                                <form action="{{ route('logout') }}" method="POST">
+                                                    @csrf
+                                                    <button type="submit" class="btn border">
+                                                        Déconnexion
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
                                     </div>

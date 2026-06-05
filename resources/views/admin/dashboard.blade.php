@@ -7,12 +7,38 @@
 <div class="content-page">
     <div class="container-fluid">
         <div class="row">
+            <div class="col-md-12">
+                @if(session('success'))
+                <div class="alert text-white bg-success" role="alert">
+                    <div class="iq-alert-icon">
+                        <i class="ri-alert-line"></i>
+                    </div>
+                    <div class="iq-alert-text">{{ session('success') }}</div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                @endif
+                @if(session('error'))
+                <div class="alert text-white bg-danger" role="alert">
+                    <div class="iq-alert-icon">
+                        <i class="ri-information-line"></i>
+                    </div>
+                    <div class="iq-alert-text">{{ session('error') }}</div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                @endif
+            </div>
+        </div>
+        <div class="row">
             <!-- En-tête de bienvenue -->
             <div class="col-lg-4">
                 <div class="card card-transparent card-block card-stretch card-height border-none">
                     <div class="card-body p-0 mt-lg-2 mt-0">
                         <h3 class="mb-3">
-                            Bonjour, {{ auth()->user()->first_name }} 👋
+                            Bonjour, {{ auth()->user()->full_name }} 👋
                         </h3>
                         <p class="mb-0 mr-4">
                             Votre tableau de bord vous donne un aperçu des performances clés de votre restaurant.
