@@ -9,6 +9,7 @@ use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\ProductOption;
 use App\Models\ProductOptionItem;
+use App\HasRestaurant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -16,9 +17,16 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    use HasRestaurant;
+
     public function index(Request $request)
     {
         $restaurantId = $this->getRestaurantId();
+
+        if (!$restaurantId) {
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'Aucun restaurant configuré. Veuillez contacter l\'administrateur.');
+        }
         
         $query = Product::with(['category', 'primaryImage'])
             ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId));
@@ -192,7 +200,11 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        $this->authorize('update', $product);
+        // $this->authorize('update', $product);
+        if (!auth()->user()->isAdmin() && 
+            !auth()->user()->restaurants()->where('restaurant_id', $product->restaurant_id)->exists()) {
+            abort(403, 'Action non autorisée.');
+        }
 
         $product->load(['images', 'variants', 'options.items']);
         $categories = Category::where('restaurant_id', $product->restaurant_id)->active()->get();
@@ -202,7 +214,11 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $this->authorize('update', $product);
+        // $this->authorize('update', $product);
+        if (!auth()->user()->isAdmin() && 
+            !auth()->user()->restaurants()->where('restaurant_id', $product->restaurant_id)->exists()) {
+            abort(403, 'Action non autorisée.');
+        }
 
         $validated = $request->validate([
             'category_id' => 'required|exists:categories,id',
@@ -310,14 +326,14 @@ class ProductController extends Controller
         return back()->with('success', 'Image supprimée avec succès.');
     }
 
-    protected function getRestaurantId(): int
-    {
-        $user = auth()->user();
+    // protected function getRestaurantId(): int
+    // {
+    //     $user = auth()->user();
         
-        if ($user->isAdmin() && request()->filled('restaurant_id')) {
-            return request()->restaurant_id;
-        }
+    //     if ($user->isAdmin() && request()->filled('restaurant_id')) {
+    //         return request()->restaurant_id;
+    //     }
 
-        return $user->restaurants()->first()->id;
-    }
+    //     return $user->restaurants()->first()->id;
+    // }
 }
