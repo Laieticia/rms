@@ -4056,3 +4056,175 @@ Partials - Cart Sidebar (Offcanvas)
         </div>
     </div>
 @endauth
+
+
+
+--------------------------------------------------------------------------------------------
+admin/products/create.blade.php
+--------------------------------------------------------------------------------------------
+
+@extends('layouts.admin')
+
+@section('title', 'Nouveau Produit')
+
+@section('content')
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold"><i class="bi bi-plus-circle me-2"></i>Nouveau Produit</h3>
+        <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                
+                <div class="row g-3">
+                    <!-- Informations de base -->
+                    <div class="col-12">
+                        <h5 class="border-bottom pb-2 mb-3">Informations de base</h5>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Nom du produit *</label>
+                        <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                               id="name" name="name" value="{{ old('name') }}" required>
+                        @error('name')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="category_id" class="form-label">Catégorie *</label>
+                        <select class="form-select @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
+                            <option value="">Sélectionner une catégorie</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    
+                    <div class="col-12">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control @error('description') is-invalid @enderror" 
+                                  id="description" name="description" rows="3">{{ old('description') }}</textarea>
+                        @error('description')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    
+                    <!-- Prix et stock -->
+                    <div class="col-12">
+                        <h5 class="border-bottom pb-2 mb-3">Prix et Stock</h5>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="price" class="form-label">Prix (€) *</label>
+                        <input type="number" step="0.01" class="form-control @error('price') is-invalid @enderror" 
+                               id="price" name="price" value="{{ old('price') }}" required>
+                        @error('price')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="compare_price" class="form-label">Prix barré (€)</label>
+                        <input type="number" step="0.01" class="form-control @error('compare_price') is-invalid @enderror" 
+                               id="compare_price" name="compare_price" value="{{ old('compare_price') }}">
+                        <small class="text-muted">Pour afficher une promotion</small>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="preparation_time" class="form-label">Temps de préparation (min) *</label>
+                        <input type="number" class="form-control @error('preparation_time') is-invalid @enderror" 
+                               id="preparation_time" name="preparation_time" value="{{ old('preparation_time', 15) }}" required>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label for="calories" class="form-label">Calories</label>
+                        <input type="number" class="form-control @error('calories') is-invalid @enderror" 
+                               id="calories" name="calories" value="{{ old('calories') }}">
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label for="stock_quantity" class="form-label">Quantité en stock</label>
+                        <input type="number" class="form-control @error('stock_quantity') is-invalid @enderror" 
+                               id="stock_quantity" name="stock_quantity" value="{{ old('stock_quantity', 0) }}">
+                    </div>
+                    
+                    <!-- Options -->
+                    <div class="col-12">
+                        <h5 class="border-bottom pb-2 mb-3">Options</h5>
+                    </div>
+                    
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_vegetarian" name="is_vegetarian" value="1" {{ old('is_vegetarian') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_vegetarian">🥬 Végétarien</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_vegan" name="is_vegan" value="1" {{ old('is_vegan') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_vegan">🌱 Vegan</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_gluten_free" name="is_gluten_free" value="1" {{ old('is_gluten_free') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_gluten_free">🌾 Sans gluten</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="is_spicy" name="is_spicy" value="1" {{ old('is_spicy') ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="is_spicy">🌶️ Épicé</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="is_featured" name="is_featured" value="1" {{ old('is_featured') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="is_featured">⭐ Mettre en vedette</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="is_available" name="is_available" value="1" {{ old('is_available', true) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="is_available">✅ Disponible</label>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="track_inventory" name="track_inventory" value="1" {{ old('track_inventory') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="track_inventory">📦 Suivi de stock</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Images -->
+                    <div class="col-12">
+                        <h5 class="border-bottom pb-2 mb-3">Images</h5>
+                    </div>
+                    
+                    <div class="col-12">
+                        <input type="file" class="form-control @error('images.*') is-invalid @enderror" 
+                               name="images[]" multiple accept="image/*">
+                        <small class="text-muted">Formats acceptés : JPG, PNG, WebP - Max 2 Mo</small>
+                        @error('images.*')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="bi bi-check-lg"></i> Créer le produit
+                    </button>
+                    <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary btn-lg ms-2">Annuler</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endsection
