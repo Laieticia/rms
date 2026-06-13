@@ -3,6 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
+        "start": "concurrently -c \"#93c5fd,#c4b5fd,#fdba74\" --names \"server,queue,vite\" --kill-others \"php artisan serve\" \"php artisan queue:listen --tries=1 --timeout=0\" \"npm run dev\"",
         "build": "vite build",
         "dev": "vite"
     },

@@ -6,6 +6,32 @@
 <div class="content-page">
     <div class="container-fluid">
         <div class="row">
+            <div class="col-md-12">
+                @if(session('success'))
+                <div class="alert text-white bg-success" role="alert">
+                    <div class="iq-alert-icon">
+                        <i class="ri-alert-line"></i>
+                    </div>
+                    <div class="iq-alert-text">{{ session('success') }}</div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                @endif
+                @if(session('error'))
+                <div class="alert text-white bg-danger" role="alert">
+                    <div class="iq-alert-icon">
+                        <i class="ri-information-line"></i>
+                    </div>
+                    <div class="iq-alert-text">{{ session('error') }}</div>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                @endif
+            </div>
+        </div>
+        <div class="row">
         <div class="col-sm-12">
             <div class="card">
                 <div class="card-header">
@@ -123,8 +149,7 @@
                                                         <button type="button" class="badge badge-info mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Stock" data-bs-target="#stockModal{{ $product->id }}">
                                                             <i class="ri-star-fill mr-2"></i>
                                                         </button>
-                                                        <a class="badge bg-success mr-2" data-toggle="tooltip"
-                                                            data-placement="top" title="" data-original-title="Edit" href="{{ route('admin.products.edit', $product) }}">
+                                                        <a class="badge bg-success mr-2" href="{{ route('admin.products.edit', $product) }}" aria-label="Modifier">
                                                             <i class="ri-pencil-line mr-0"></i>
                                                         </a>
                                                         <form action="{{ route('admin.products.destroy', $product) }}" method="POST" class="d-inline">

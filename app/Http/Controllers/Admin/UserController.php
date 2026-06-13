@@ -22,7 +22,8 @@ class UserController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('first_name', 'like', "%{$search}%")
                   ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('phone', 'like', "%{$search}%");
             });
         }
 
@@ -30,11 +31,12 @@ class UserController extends Controller
             match($request->status) {
                 'active' => $query->active(),
                 'blocked' => $query->where('is_blocked', true),
+                'inactive' => $query->where('is_active', false),
                 default => null,
             };
         }
 
-        $users = $query->latest()->paginate(20);
+        $users = $query->latest()->paginate(10);
         $roles = Role::all();
 
         return view('admin.users.index', compact('users', 'roles'));
@@ -42,11 +44,23 @@ class UserController extends Controller
 
     public function show(User $user)
     {
-        $user->load(['roles', 'orders' => function($q) {
-            $q->latest()->take(10)->with('restaurant');
-        }, 'addresses', 'reviews']);
+        // $user->load(['roles', 'orders' => function($q) {
+        //     $q->latest()->take(10)->with('restaurant');
+        // }, 'addresses', 'reviews']);
 
-        return view('admin.users.show', compact('user'));
+        // return view('admin.users.show', compact('user'));
+        
+        $user->load([
+            'roles', 
+            'orders' => fn($q) => $q->latest()->take(10)->with('restaurant'),
+            'addresses', 
+            'reviews' => fn($q) => $q->latest()->take(5),
+            'restaurants',
+        ]);
+
+        $loyaltyPoints = $user->getLoyaltyBalance();
+
+        return view('admin.users.show', compact('user', 'loyaltyPoints'));
     }
 
     public function edit(User $user)
@@ -86,8 +100,10 @@ class UserController extends Controller
 
     public function block(Request $request, User $user)
     {
+        // $request->validate(['reason' => 'required|string|max:500']);
         $request->validate([
             'reason' => 'required|string|max:500',
+            'days' => 'nullable|integer|min:1',
         ]);
 
         $user->update([
@@ -112,6 +128,10 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+        }
+        
         $user->delete();
 
         return redirect()

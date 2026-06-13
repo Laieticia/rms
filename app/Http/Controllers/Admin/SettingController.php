@@ -4,21 +4,38 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Restaurant;
+use App\Models\OperatingHour;
+use App\Models\SpecialDay;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class SettingController extends Controller
 {
+    // public function index()
+    // {
+    //     $restaurant = Restaurant::find($this->getRestaurantId());
+
+    //     return view('admin.settings.index', compact('restaurant'));
+    // }
+
     public function index()
     {
-        $restaurant = Restaurant::find($this->getRestaurantId());
+        $restaurant = $this->getRestaurant();
+        
+        if (!$restaurant) {
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'Aucun restaurant trouvé.');
+        }
 
-        return view('admin.settings.index', compact('restaurant'));
+        $restaurant->load(['operatingHours', 'specialDays']);
+        $days = OperatingHour::DAYS;
+
+        return view('admin.settings.index', compact('restaurant', 'days'));
     }
 
     public function updateRestaurant(Request $request)
     {
-        $restaurant = Restaurant::find($this->getRestaurantId());
+        $restaurant = $this->getRestaurant();
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -64,26 +81,73 @@ class SettingController extends Controller
 
     public function updateHours(Request $request)
     {
+        // $request->validate([
+        //     'opening_hours' => 'required|array',
+        //     'opening_hours.*.open' => 'nullable|date_format:H:i',
+        //     'opening_hours.*.close' => 'nullable|date_format:H:i',
+        // ]);
+
+        // $restaurant = Restaurant::find($this->getRestaurantId());
+        // $restaurant->update(['opening_hours' => $request->opening_hours]);
+
+        // return back()->with('success', 'Horaires mis à jour.');
+        $restaurant = $this->getRestaurant();
+
         $request->validate([
-            'opening_hours' => 'required|array',
-            'opening_hours.*.open' => 'nullable|date_format:H:i',
-            'opening_hours.*.close' => 'nullable|date_format:H:i',
+            'hours' => 'required|array',
+            'hours.*.day' => 'required|in:' . implode(',', array_keys(OperatingHour::DAYS)),
+            'hours.*.open_time' => 'nullable|date_format:H:i',
+            'hours.*.close_time' => 'nullable|date_format:H:i',
+            'hours.*.is_closed' => 'boolean',
         ]);
 
-        $restaurant = Restaurant::find($this->getRestaurantId());
-        $restaurant->update(['opening_hours' => $request->opening_hours]);
-
-        return back()->with('success', 'Horaires mis à jour.');
-    }
-
-    private function getRestaurantId(): int
-    {
-        $user = auth()->user();
-        
-        if ($user->isAdmin() && request()->filled('restaurant_id')) {
-            return request()->restaurant_id;
+        foreach ($request->hours as $hourData) {
+            OperatingHour::updateOrCreate(
+                [
+                    'restaurant_id' => $restaurant->id,
+                    'day' => $hourData['day'],
+                ],
+                [
+                    'open_time' => $hourData['open_time'] ?? '09:00',
+                    'close_time' => $hourData['close_time'] ?? '22:00',
+                    'is_closed' => $hourData['is_closed'] ?? false,
+                ]
+            );
         }
 
-        return $user->restaurants()->first()?->id ?? 1;
+        return back()->with('success', 'Horaires mis à jour avec succès.');
+    }
+
+    public function addSpecialDay(Request $request)
+    {
+        $restaurant = $this->getRestaurant();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'date' => 'required|date',
+            'is_closed' => 'boolean',
+            'open_time' => 'nullable|date_format:H:i',
+            'close_time' => 'nullable|date_format:H:i',
+            'description' => 'nullable|string',
+        ]);
+
+        $restaurant->specialDays()->create($validated);
+
+        return back()->with('success', 'Jour spécial ajouté.');
+    }
+
+    public function removeSpecialDay(SpecialDay $specialDay)
+    {
+        $specialDay->delete();
+        return back()->with('success', 'Jour spécial supprimé.');
+    }
+
+    private function getRestaurant(): ?Restaurant
+    {
+        $user = auth()->user();
+        if ($user->isAdmin() && request()->filled('restaurant_id')) {
+            return Restaurant::find(request()->restaurant_id);
+        }
+        return $user->restaurants()->first();
     }
 }

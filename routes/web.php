@@ -101,12 +101,12 @@ Route::middleware(['auth', 'admin.access'])
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
         
         // Produits
-        Route::resource('products', ProductController::class);
         Route::post('/products/{product}/images', [ProductController::class, 'uploadImages'])
             ->name('products.images.store');
         Route::delete('/products/images/{image}', [ProductController::class, 'deleteImage'])
             ->name('products.images.destroy');
-        
+        Route::resource('products', ProductController::class);
+            
         // Catégories
         Route::resource('categories', CategoryController::class);
         
@@ -114,7 +114,6 @@ Route::middleware(['auth', 'admin.access'])
         Route::resource('menus', AdminMenuController::class);
         
         // Commandes
-        Route::resource('orders', AdminOrderController::class);
         Route::post('/orders/{order}/status', [AdminOrderController::class, 'updateStatus'])
             ->name('orders.status');
         Route::post('/orders/{order}/delivery', [AdminOrderController::class, 'assignDelivery'])
@@ -123,6 +122,8 @@ Route::middleware(['auth', 'admin.access'])
             ->name('orders.cancel');
         Route::get('/orders/{order}/print', [AdminOrderController::class, 'print'])
             ->name('orders.print');
+        Route::get('/export', [AdminOrderController::class, 'export'])->name('export');
+        Route::resource('orders', AdminOrderController::class);
         
         // Coupons
         Route::resource('coupons', CouponController::class);
@@ -136,9 +137,11 @@ Route::middleware(['auth', 'admin.access'])
             ->name('reviews.respond');
         
         // Utilisateurs
+        Route::prefix('users')->name('users.')->group(function () {
+            Route::post('/{user}/block', [UserController::class, 'block'])->name('block');
+            Route::post('/{user}/unblock', [UserController::class, 'unblock'])->name('unblock');
+        });
         Route::resource('users', UserController::class);
-        Route::post('/users/{user}/block', [UserController::class, 'block'])->name('users.block');
-        Route::post('/users/{user}/unblock', [UserController::class, 'unblock'])->name('users.unblock');
         
         // Rapports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports');
@@ -148,6 +151,8 @@ Route::middleware(['auth', 'admin.access'])
         Route::get('/settings', [SettingController::class, 'index'])->name('settings');
         Route::put('/settings/restaurant', [SettingController::class, 'updateRestaurant'])->name('settings.restaurant');
         Route::put('/settings/hours', [SettingController::class, 'updateHours'])->name('settings.hours');
+        Route::post('/settings/special-days', [SettingController::class, 'addSpecialDay'])->name('settings.special-days.store');
+        Route::delete('/settings/special-days/{specialDay}', [SettingController::class, 'removeSpecialDay'])->name('settings.special-days.destroy');
 
     });
 
