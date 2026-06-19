@@ -149,7 +149,7 @@
                                 </div>
                             </div>
                         </li>
-                        <li class="nav-item nav-icon dropdown">
+                        {{-- <li class="nav-item nav-icon dropdown">
                             <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
@@ -219,6 +219,69 @@
                                         <a class="right-ic btn btn-primary btn-block position-relative p-2" href="#"
                                             role="button">
                                             View All
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li> --}}
+                        <li class="nav-item nav-icon dropdown" id="notificationBell">
+                            <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton"
+                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-bell">
+                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                                </svg>
+                                <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" 
+                                    style="top:0;right:0;font-size:10px;{{ auth()->user()->notifications()->where('is_read', false)->count() === 0 ? 'display:none;' : '' }}">
+                                    {{ auth()->user()->notifications()->where('is_read', false)->count() }}
+                                </span>
+                            </a>
+                            <div class="iq-sub-dropdown dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" style="width:350px;">
+                                <div class="card shadow-none m-0">
+                                    <div class="card-body p-0">
+                                        <div class="cust-title p-3">
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <h5 class="mb-0">Notifications</h5>
+                                                <a class="badge badge-primary badge-card" href="#" id="notificationCount">
+                                                    {{ auth()->user()->notifications()->where('is_read', false)->count() }}
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <div class="px-3 pt-0 pb-0 sub-card" id="notificationList" style="max-height:300px;overflow-y:auto;">
+                                            @php
+                                                $notifications = auth()->user()->notifications()->latest()->take(5)->get();
+                                            @endphp
+                                            
+                                            @forelse($notifications as $notif)
+                                                <a href="#" class="iq-sub-card notification-item {{ $notif->is_read ? '' : 'bg-light' }}" 
+                                                data-id="{{ $notif->id }}">
+                                                    <div class="media align-items-center cust-card py-3 border-bottom">
+                                                        <div class="">
+                                                            <img class="avatar-50 rounded-small"
+                                                                src="https://ui-avatars.com/api/?name=System&background=e74c3c&color=fff&size=50" 
+                                                                alt="notif">
+                                                        </div>
+                                                        <div class="media-body ml-3">
+                                                            <div class="d-flex align-items-center justify-content-between">
+                                                                <h6 class="mb-0">{{ $notif->title }}</h6>
+                                                                <small class="text-dark"><b>{{ $notif->created_at->format('H:i') }}</b></small>
+                                                            </div>
+                                                            <small class="mb-0">{{ Str::limit($notif->message, 50) }}</small>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            @empty
+                                                <div class="text-center py-4">
+                                                    <i class="bi bi-bell-slash text-muted display-6"></i>
+                                                    <p class="text-muted mt-2">Aucune notification</p>
+                                                </div>
+                                            @endforelse
+                                        </div>
+                                        <a class="right-ic btn btn-primary btn-block position-relative p-2" 
+                                        href="#" role="button">
+                                            Voir toutes les notifications
                                         </a>
                                     </div>
                                 </div>

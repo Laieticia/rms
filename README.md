@@ -4228,3 +4228,1095 @@ admin/products/create.blade.php
     </div>
 </div>
 @endsection
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-------------------------------------------------------------------
+--------------------------------------------------------------------
+--------------------------------------------------------------------
+
+
+1. Page d'Accueil (home.blade.php)
+blade
+@extends('layouts.app')
+
+@section('title', 'Accueil')
+
+@section('content')
+<!-- Hero Section -->
+<section class="hero-section text-white py-5" style="background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);">
+    <div class="container text-center py-5">
+        <h1 class="display-4 fw-bold mb-3">🍽️ Découvrez les meilleurs restaurants</h1>
+        <p class="lead mb-4">Commandez vos plats préférés et faites-vous livrer en quelques clics</p>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <form action="{{ route('search') }}" method="GET" class="row g-2">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                            <input type="text" name="city" class="form-control" placeholder="Votre ville...">
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" name="q" class="form-control" placeholder="Quel plat recherchez-vous ?">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-warning w-100 fw-bold">
+                            <i class="bi bi-search"></i> Chercher
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Restaurants -->
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold">🏪 Restaurants populaires</h3>
+            <a href="{{ route('restaurants.index') }}" class="btn btn-outline-primary">Voir tout <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-4">
+            @foreach($featuredRestaurants as $restaurant)
+                <div class="col-md-4 col-lg-3">
+                    <a href="{{ route('restaurants.show', $restaurant) }}" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm hover-shadow">
+                            <img src="{{ $restaurant->cover_url ?? 'https://via.placeholder.com/400x200?text='.$restaurant->name }}" 
+                                 class="card-img-top" style="height:180px;object-fit:cover;" alt="{{ $restaurant->name }}">
+                            <div class="card-body">
+                                <h5 class="card-title text-dark">{{ $restaurant->name }}</h5>
+                                <p class="text-muted small mb-2">{{ Str::limit($restaurant->description, 60) }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-warning">
+                                        @for($i=1;$i<=5;$i++)
+                                            <i class="bi bi-star{{ $i <= round($restaurant->reviews_avg_rating??0) ? '-fill' : '' }} small"></i>
+                                        @endfor
+                                    </span>
+                                    <small class="text-muted">{{ $restaurant->estimated_delivery_time ?? 30 }} min</small>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- Produits populaires -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h3 class="fw-bold mb-4">🔥 Plats populaires</h3>
+        <div class="row g-4">
+            @foreach($popularProducts as $product)
+                <div class="col-md-6 col-lg-3">
+                    <div class="card h-100 product-card shadow-sm">
+                        <div class="position-relative">
+                            <img src="{{ $product->primary_image_url ?? 'https://via.placeholder.com/300x200?text='.$product->name }}" 
+                                 class="card-img-top" style="height:180px;object-fit:cover;" alt="{{ $product->name }}">
+                            @if($product->is_on_sale)
+                                <span class="badge bg-danger position-absolute top-0 end-0 m-2">-{{ $product->discount_percentage }}%</span>
+                            @endif
+                        </div>
+                        <div class="card-body">
+                            <h6 class="card-title">{{ $product->name }}</h6>
+                            <small class="text-muted">{{ $product->restaurant->name }}</small>
+                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                <div>
+                                    @if($product->is_on_sale)
+                                        <small class="text-decoration-line-through text-muted">{{ number_format($product->compare_price,2) }}€</small>
+                                    @endif
+                                    <span class="fw-bold text-primary">{{ $product->formatted_price }}</span>
+                                </div>
+                                <button class="btn btn-primary btn-sm" onclick="addToCart({{ $product->id }})">
+                                    <i class="bi bi-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- Catégories -->
+<section class="py-5">
+    <div class="container">
+        <h3 class="fw-bold mb-4">📋 Catégories</h3>
+        <div class="row g-4">
+            @foreach($categories as $category)
+                <div class="col-md-3 col-6">
+                    <a href="{{ route('restaurants.index', ['category' => $category->slug]) }}" class="text-decoration-none">
+                        <div class="card text-center shadow-sm hover-shadow">
+                            <div class="card-body py-4">
+                                <i class="bi bi-{{ ['cup-hot','egg-fried','cake2','cup-straw'][$loop->index%4] }} display-4 text-primary mb-3"></i>
+                                <h6 class="text-dark">{{ $category->name }}</h6>
+                                <small class="text-muted">{{ $category->available_products_count }} plats</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- Comment ça marche -->
+<section class="py-5 bg-light">
+    <div class="container text-center">
+        <h3 class="fw-bold mb-5">💡 Comment ça marche ?</h3>
+        <div class="row g-4">
+            <div class="col-md-4"><div class="card h-100"><div class="card-body py-4"><i class="bi bi-geo-alt display-3 text-primary mb-3"></i><h5>1. Choisissez</h5><p class="text-muted">Un restaurant près de chez vous</p></div></div></div>
+            <div class="col-md-4"><div class="card h-100"><div class="card-body py-4"><i class="bi bi-cart-check display-3 text-primary mb-3"></i><h5>2. Commandez</h5><p class="text-muted">Vos plats préférés en quelques clics</p></div></div></div>
+            <div class="col-md-4"><div class="card h-100"><div class="card-body py-4"><i class="bi bi-truck display-3 text-primary mb-3"></i><h5>3. Dégustez</h5><p class="text-muted">Livraison rapide à domicile</p></div></div></div>
+        </div>
+    </div>
+</section>
+@endsection
+2. Restaurants (restaurants/index.blade.php)
+blade
+@extends('layouts.app')
+
+@section('title', 'Restaurants')
+
+@section('content')
+<div class="container py-4">
+    <h3 class="fw-bold mb-4">🏪 Nos Restaurants</h3>
+    
+    <div class="row g-4">
+        @forelse($restaurants as $restaurant)
+            <div class="col-md-6 col-lg-4">
+                <a href="{{ route('restaurants.show', $restaurant) }}" class="text-decoration-none">
+                    <div class="card h-100 shadow-sm hover-shadow">
+                        <img src="{{ $restaurant->cover_url ?? 'https://via.placeholder.com/400x200' }}" 
+                             class="card-img-top" style="height:200px;object-fit:cover;" alt="{{ $restaurant->name }}">
+                        <div class="card-body">
+                            <h5 class="text-dark">{{ $restaurant->name }}</h5>
+                            <p class="text-muted small">{{ Str::limit($restaurant->description, 80) }}</p>
+                            <div class="d-flex justify-content-between">
+                                <span class="text-warning">
+                                    @for($i=1;$i<=5;$i++)<i class="bi bi-star{{$i<=round($restaurant->reviews_avg_rating??0)?'-fill':''}} small"></i>@endfor
+                                    <small class="text-muted">({{$restaurant->reviews_count??0}})</small>
+                                </span>
+                                <small class="text-muted"><i class="bi bi-clock"></i> {{$restaurant->estimated_delivery_time??30}} min</small>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        @empty
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-shop display-1 text-muted"></i>
+                <h4>Aucun restaurant trouvé</h4>
+            </div>
+        @endforelse
+    </div>
+    <div class="mt-4">{{ $restaurants->links() }}</div>
+</div>
+@endsection
+restaurants/show.blade.php
+blade
+@extends('layouts.app')
+
+@section('title', $restaurant->name)
+
+@section('content')
+<div class="container py-4">
+    <!-- En-tête restaurant -->
+    <div class="card mb-4 overflow-hidden">
+        @if($restaurant->cover_url)
+            <img src="{{ $restaurant->cover_url }}" style="height:250px;object-fit:cover;" class="card-img-top" alt="">
+        @endif
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h3>{{ $restaurant->name }}</h3>
+                    <p class="text-muted">{{ $restaurant->description }}</p>
+                    <p><i class="bi bi-geo-alt"></i> {{ $restaurant->formatted_address }}</p>
+                    <p><i class="bi bi-telephone"></i> {{ $restaurant->phone }}</p>
+                    <span class="text-warning">
+                        @for($i=1;$i<=5;$i++)<i class="bi bi-star{{$i<=round($restaurant->reviews_avg_rating??0)?'-fill':''}}"></i>@endfor
+                    </span>
+                    <small class="text-muted">({{$restaurant->reviews_count}} avis)</small>
+                </div>
+                <a href="{{ route('restaurant.menu', $restaurant) }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-book"></i> Voir le menu
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Produits en vedette -->
+    <h4 class="mb-3">🔥 Nos spécialités</h4>
+    <div class="row g-4 mb-4">
+        @foreach($restaurant->products as $product)
+            <div class="col-md-3">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ $product->primary_image_url ?? 'https://via.placeholder.com/200' }}" 
+                         class="card-img-top" style="height:150px;object-fit:cover;">
+                    <div class="card-body">
+                        <h6>{{ $product->name }}</h6>
+                        <span class="fw-bold text-primary">{{ $product->formatted_price }}</span>
+                        <button class="btn btn-primary btn-sm float-end" onclick="addToCart({{ $product->id }})">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+    
+    <!-- Avis -->
+    <h4 class="mb-3">⭐ Avis clients</h4>
+    @forelse($restaurant->reviews as $review)
+        <div class="border rounded p-3 mb-3">
+            <div class="d-flex align-items-center mb-2">
+                <img src="{{ $review->user->avatar_url }}" class="rounded-circle me-2" width="35" height="35">
+                <strong>{{ $review->user->full_name }}</strong>
+                <span class="text-warning ms-2">@for($i=1;$i<=5;$i++)<i class="bi bi-star{{$i<=$review->rating?'-fill':''}} small"></i>@endfor</span>
+            </div>
+            <p class="mb-0">{{ $review->comment }}</p>
+            @if($review->admin_response)
+                <div class="bg-light p-2 rounded mt-2"><small><strong>Réponse:</strong> {{ $review->admin_response }}</small></div>
+            @endif
+        </div>
+    @empty
+        <p class="text-muted">Aucun avis pour le moment</p>
+    @endforelse
+</div>
+@endsection
+3. Menu Public (menu/index.blade.php)
+blade
+@extends('layouts.app')
+
+@section('title', $restaurant->name . ' - Menu')
+
+@section('content')
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('home') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('restaurants.show', $restaurant) }}">{{ $restaurant->name }}</a></li>
+            <li class="breadcrumb-item active">Menu</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card sticky-top" style="top:100px;">
+                <div class="card-header"><h5 class="mb-0">Catégories</h5></div>
+                <div class="list-group list-group-flush">
+                    <a href="{{ route('restaurant.menu', $restaurant) }}" class="list-group-item list-group-item-action {{ !request('category')?'active':'' }}">
+                        <i class="bi bi-grid me-2"></i>Tout le menu
+                    </a>
+                    @foreach($categories as $cat)
+                        <a href="{{ route('restaurant.menu', [$restaurant, 'category'=>$cat->slug]) }}" 
+                           class="list-group-item list-group-item-action {{ request('category')==$cat->slug?'active':'' }}">
+                            {{ $cat->name }}
+                            <span class="badge bg-secondary float-end">{{ $cat->available_products_count }}</span>
+                        </a>
+                    @endforeach
+                </div>
+                
+                <div class="card-body border-top">
+                    <h6>Filtres</h6>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="vegetarian" onchange="toggleFilter('vegetarian')" {{ request('vegetarian')?'checked':'' }}><label>🥬 Végétarien</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="vegan" onchange="toggleFilter('vegan')" {{ request('vegan')?'checked':'' }}><label>🌱 Vegan</label></div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="gluten_free" onchange="toggleFilter('gluten_free')" {{ request('gluten_free')?'checked':'' }}><label>🌾 Sans gluten</label></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-9">
+            <div class="mb-4">
+                <form action="{{ route('restaurant.menu', $restaurant) }}" method="GET">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="search" class="form-control" placeholder="Rechercher un plat..." value="{{ request('search') }}">
+                        <button class="btn btn-primary">Rechercher</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="row g-4">
+                @forelse($products as $product)
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm">
+                            <a href="{{ route('products.show', $product) }}">
+                                <img src="{{ $product->primary_image_url ?? 'https://via.placeholder.com/300x200' }}" 
+                                     class="card-img-top" style="height:180px;object-fit:cover;">
+                            </a>
+                            @if($product->is_on_sale)<span class="badge bg-danger position-absolute top-0 end-0 m-2">-{{$product->discount_percentage}}%</span>@endif
+                            <div class="card-body">
+                                <h6>{{ $product->name }}</h6>
+                                <p class="small text-muted">{{ Str::limit($product->description, 50) }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        @if($product->is_on_sale)<small class="text-decoration-line-through text-muted">{{number_format($product->compare_price,2)}}€</small>@endif
+                                        <span class="fw-bold text-primary">{{ $product->formatted_price }}</span>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm" onclick="addToCart({{ $product->id }})">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12 text-center py-5">
+                        <i class="bi bi-emoji-frown display-1 text-muted"></i>
+                        <h4>Aucun produit</h4>
+                    </div>
+                @endforelse
+            </div>
+            <div class="mt-4">{{ $products->links() }}</div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+function toggleFilter(filter) {
+    const url = new URL(window.location.href);
+    if (document.getElementById(filter).checked) {
+        url.searchParams.set(filter, '1');
+    } else {
+        url.searchParams.delete(filter);
+    }
+    window.location.href = url.toString();
+}
+</script>
+@endpush
+menu/show.blade.php (Détail produit)
+blade
+@extends('layouts.app')
+
+@section('title', $product->name)
+
+@section('content')
+<div class="container py-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ route('home') }}">Accueil</a></li>
+            <li class="breadcrumb-item"><a href="{{ route('restaurant.menu', $product->restaurant) }}">{{ $product->restaurant->name }}</a></li>
+            <li class="breadcrumb-item active">{{ $product->name }}</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            @if($product->primary_image_url)
+                <img src="{{ $product->primary_image_url }}" class="img-fluid rounded" alt="{{ $product->name }}">
+            @endif
+            @if($product->images->count()>1)
+                <div class="row g-2 mt-2">
+                    @foreach($product->images as $image)
+                        <div class="col-3"><img src="{{ asset('storage/'.$image->path) }}" class="img-fluid rounded"></div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+        <div class="col-md-6">
+            <h3>{{ $product->name }}</h3>
+            <p>{{ $product->description }}</p>
+            
+            <div class="mb-3">
+                @if($product->is_on_sale)
+                    <span class="text-decoration-line-through text-muted fs-5">{{ number_format($product->compare_price,2) }}€</span>
+                @endif
+                <span class="fw-bold text-primary fs-3">{{ $product->formatted_price }}</span>
+            </div>
+            
+            <div class="mb-3">
+                @if($product->is_vegetarian)<span class="badge bg-success">🥬 Végétarien</span>@endif
+                @if($product->is_vegan)<span class="badge bg-success">🌱 Vegan</span>@endif
+                @if($product->is_gluten_free)<span class="badge bg-warning">🌾 Sans gluten</span>@endif
+                @if($product->is_spicy)<span class="badge bg-danger">🌶️ Épicé</span>@endif
+                @if($product->calories)<span class="badge bg-info">🔥 {{$product->calories}} cal</span>@endif
+                <span class="badge bg-secondary">⏱️ {{$product->preparation_time}} min</span>
+            </div>
+            
+            @if($product->allergens)
+                <p><strong>Allergènes:</strong> {{ implode(', ', $product->allergens) }}</p>
+            @endif
+            
+            <button class="btn btn-primary btn-lg" onclick="addToCart({{ $product->id }})">
+                <i class="bi bi-cart-plus"></i> Ajouter au panier - {{ $product->formatted_price }}
+            </button>
+        </div>
+    </div>
+    
+    @if($relatedProducts->count())
+        <h4 class="mt-5 mb-3">Produits similaires</h4>
+        <div class="row g-3">
+            @foreach($relatedProducts as $rp)
+                <div class="col-md-3">
+                    <div class="card h-100">
+                        <img src="{{ $rp->primary_image_url ?? 'https://via.placeholder.com/200' }}" class="card-img-top" style="height:120px;object-fit:cover;">
+                        <div class="card-body"><h6>{{$rp->name}}</h6><span class="fw-bold">{{$rp->formatted_price}}</span></div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+</div>
+@endsection
+4. Panier (cart/index.blade.php)
+blade
+@extends('layouts.app')
+
+@section('title', 'Mon Panier')
+
+@section('content')
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-cart3 me-2"></i>Mon Panier</h3>
+
+    @if(count($cartItems) > 0)
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        @foreach($cartItems as $item)
+                            <div class="row align-items-center mb-3 pb-3 border-bottom">
+                                <div class="col-md-2">
+                                    <img src="{{ $item['product']->primary_image_url ?? 'https://via.placeholder.com/80' }}" class="img-fluid rounded">
+                                </div>
+                                <div class="col-md-4">
+                                    <h6>{{ $item['product']->name }}</h6>
+                                    @if(!empty($item['options']))
+                                        <small class="text-muted">+ {{ implode(', ', array_column($item['options'], 'name')) }}</small>
+                                    @endif
+                                </div>
+                                <div class="col-md-2">
+                                    <div class="input-group input-group-sm">
+                                        <a href="{{ route('cart.remove', $item['key']) }}" class="btn btn-outline-secondary">-</a>
+                                        <input type="text" class="form-control text-center" value="{{ $item['quantity'] }}" readonly>
+                                        <button class="btn btn-outline-secondary" onclick="addToCart({{ $item['product']->id }})">+</button>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 text-end fw-bold">{{ number_format($item['item_total'], 2) }}€</div>
+                                <div class="col-md-2 text-end">
+                                    <a href="{{ route('cart.remove', $item['key']) }}" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></a>
+                                </div>
+                            </div>
+                        @endforeach
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{{ route('cart.clear') }}" class="btn btn-outline-danger" onclick="return confirm('Vider le panier?')"><i class="bi bi-trash"></i> Vider</a>
+                            <a href="{{ route('home') }}" class="btn btn-outline-primary"><i class="bi bi-arrow-left"></i> Continuer</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header bg-primary text-white"><h5 class="mb-0">Résumé</h5></div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2"><span>Sous-total</span><span>{{ number_format($subtotal,2) }}€</span></div>
+                        @if($discount>0)<div class="d-flex justify-content-between mb-2 text-success"><span>Réduction</span><span>-{{ number_format($discount,2) }}€</span></div>@endif
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3"><strong>Total</strong><strong class="text-primary fs-5">{{ number_format($total,2) }}€</strong></div>
+                        
+                        @if($couponCode)
+                            <div class="alert alert-success mb-3"><small>Code: <strong>{{$couponCode}}</strong></small><a href="{{ route('cart.coupon.remove') }}" class="float-end text-danger"><i class="bi bi-x-circle"></i></a></div>
+                        @else
+                            <form action="{{ route('cart.coupon') }}" method="POST" class="mb-3">
+                                @csrf
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="code" class="form-control" placeholder="Code promo">
+                                    <button class="btn btn-outline-primary">Appliquer</button>
+                                </div>
+                            </form>
+                        @endif
+                        <a href="{{ route('checkout.index') }}" class="btn btn-success w-100 btn-lg"><i class="bi bi-check-circle"></i> Commander</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @else
+        <div class="text-center py-5">
+            <i class="bi bi-cart-x display-1 text-muted"></i>
+            <h3>Panier vide</h3>
+            <a href="{{ route('home') }}" class="btn btn-primary btn-lg"><i class="bi bi-shop"></i> Voir les restaurants</a>
+        </div>
+    @endif
+</div>
+@endsection
+5. Checkout (checkout/index.blade.php)
+blade
+@extends('layouts.app')
+
+@section('title', 'Finaliser la commande')
+
+@section('content')
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-credit-card me-2"></i>Finaliser la commande</h3>
+
+    <form action="{{ route('checkout.process') }}" method="POST">
+        @csrf
+        <div class="row g-4">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header"><h5 class="mb-0">📍 Adresse de livraison</h5></div>
+                    <div class="card-body">
+                        @foreach($addresses as $address)
+                            <div class="form-check mb-3 p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="address_id" value="{{$address->id}}" id="addr{{$address->id}}" {{ $loop->first || ($defaultAddress && $defaultAddress->id==$address->id) ? 'checked' : '' }}>
+                                <label for="addr{{$address->id}}">
+                                    <strong>{{$address->label}}</strong><br>
+                                    {{$address->street_address}}, {{$address->postal_code}} {{$address->city}}
+                                    @if($address->instructions)<br><small>📝 {{$address->instructions}}</small>@endif
+                                </label>
+                            </div>
+                        @endforeach
+                        <div class="mb-3"><label class="form-label">Instructions livraison</label><textarea name="delivery_instructions" class="form-control" rows="2" placeholder="Code, étage..."></textarea></div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header"><h5 class="mb-0">💳 Paiement</h5></div>
+                    <div class="card-body">
+                        <div class="form-check mb-3 p-3 border rounded">
+                            <input class="form-check-input" type="radio" name="payment_method" value="cash" id="cash" checked>
+                            <label for="cash"><i class="bi bi-cash fs-4 me-2"></i>Espèces (à la livraison)</label>
+                        </div>
+                        <div class="form-check p-3 border rounded">
+                            <input class="form-check-input" type="radio" name="payment_method" value="card" id="card">
+                            <label for="card"><i class="bi bi-credit-card fs-4 me-2"></i>Carte bancaire (à la livraison)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header"><h5 class="mb-0">📝 Notes</h5></div>
+                    <div class="card-body"><textarea name="notes" class="form-control" rows="2" placeholder="Allergies, préférences..."></textarea></div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card sticky-top" style="top:100px;">
+                    <div class="card-header bg-primary text-white"><h5 class="mb-0">🛒 Résumé</h5></div>
+                    <div class="card-body">
+                        <h6>{{ $restaurant->name }}</h6>
+                        @foreach($cartItems as $item)
+                            <div class="d-flex justify-content-between mb-1"><small>{{$item['quantity']}}x {{$item['product']->name}}</small><small>{{number_format($item['total'],2)}}€</small></div>
+                        @endforeach
+                        <hr>
+                        <div class="d-flex justify-content-between mb-1"><span>Sous-total</span><span>{{number_format($subtotal,2)}}€</span></div>
+                        @if($discount>0)<div class="d-flex justify-content-between mb-1 text-success"><span>Réduction</span><span>-{{number_format($discount,2)}}€</span></div>@endif
+                        <div class="d-flex justify-content-between mb-1"><span>Livraison</span><span>{{number_format($deliveryFee,2)}}€</span></div>
+                        <div class="d-flex justify-content-between mb-1"><span>TVA</span><span>{{number_format($taxAmount,2)}}€</span></div>
+                        <hr>
+                        <div class="d-flex justify-content-between"><strong>Total</strong><strong class="text-primary fs-5">{{number_format($total,2)}}€</strong></div>
+                        <button type="submit" class="btn btn-success w-100 btn-lg mt-3"><i class="bi bi-check-circle"></i> Confirmer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+@endsection
+6. Suivi de commande (orders/track.blade.php)
+blade
+@extends('layouts.app')
+
+@section('title', 'Suivi commande #'.$order->order_number)
+
+@section('content')
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <i class="bi bi-check-circle display-1 text-success"></i>
+        <h3>Commande confirmée !</h3>
+        <p>Votre commande <strong>#{{ $order->order_number }}</strong> a bien été enregistrée.</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h5>Statut actuel</h5>
+                    <span class="badge bg-{{ $order->status_color }} fs-5 px-4 py-2">{{ $order->status_label }}</span>
+                    <p class="mt-2">Estimation livraison : {{ $order->estimated_delivery_time ?? 30 }} min</p>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    @php $statuses=['pending'=>'Commande reçue','confirmed'=>'Confirmée','preparing'=>'En préparation','ready'=>'Prête','in_delivery'=>'En livraison','delivered'=>'Livrée']; $current=array_search($order->status,array_keys($statuses)); @endphp
+                    @foreach($statuses as $status=>$label)
+                        @php $index=array_search($status,array_keys($statuses)); @endphp
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3"><div class="rounded-circle d-flex align-items-center justify-content-center text-white {{$index<$current?'bg-success':($index==$current?'bg-primary':'bg-light text-dark')}}" style="width:35px;height:35px;">@if($index<$current)<i class="bi bi-check-lg"></i>@elseif($index==$current)<i class="bi bi-arrow-right"></i>@else{{$index+1}}@endif</div></div>
+                            <div><strong>{{$label}}</strong>@if($index<$current)<small class="text-success d-block">Terminé</small>@endif</div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="card"><div class="card-header">📋 Détails</div><div class="card-body">
+                        @foreach($order->items as $item)<div class="d-flex justify-content-between"><span>{{$item->quantity}}x {{$item->product_name}}</span><span>{{number_format($item->total_price,2)}}€</span></div>@endforeach
+                        <hr><div class="d-flex justify-content-between"><strong>Total</strong><strong>{{number_format($order->total,2)}}€</strong></div>
+                    </div></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card"><div class="card-header">📍 Livraison</div><div class="card-body">
+                        <p>{{$order->delivery_address}}</p>
+                        <p>{{$order->delivery_instructions ?? 'Aucune instruction'}}</p>
+                    </div></div>
+                </div>
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="{{ route('home') }}" class="btn btn-primary btn-lg"><i class="bi bi-house"></i> Accueil</a>
+                <a href="{{ route('profile.orders') }}" class="btn btn-outline-primary btn-lg ms-2"><i class="bi bi-box"></i> Mes commandes</a>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+7. Profil Utilisateur
+profile/index.blade.php
+blade
+@extends('layouts.app')
+
+@section('title', 'Mon Profil')
+
+@section('content')
+<div class="container py-4">
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <img src="{{ auth()->user()->avatar_url }}" class="rounded-circle mb-3" width="100" height="100">
+                    <h5>{{ auth()->user()->full_name }}</h5>
+                    <p class="text-muted">{{ auth()->user()->email }}</p>
+                    <span class="badge bg-primary">{{ auth()->user()->getRoleNames()->first() }}</span>
+                </div>
+            </div>
+            <div class="list-group mt-3">
+                <a href="{{ route('profile.index') }}" class="list-group-item list-group-item-action active"><i class="bi bi-person"></i> Profil</a>
+                <a href="{{ route('profile.orders') }}" class="list-group-item list-group-item-action"><i class="bi bi-box"></i> Commandes</a>
+                <a href="{{ route('profile.favorites') }}" class="list-group-item list-group-item-action"><i class="bi bi-heart"></i> Favoris</a>
+            </div>
+        </div>
+        <div class="col-md-9">
+            <div class="card mb-4">
+                <div class="card-header"><h5>Informations</h5></div>
+                <div class="card-body">
+                    <form action="{{ route('profile.update') }}" method="POST">
+                        @csrf @method('PUT')
+                        <div class="row g-3">
+                            <div class="col-md-6"><label class="form-label">Prénom</label><input name="first_name" class="form-control" value="{{auth()->user()->first_name}}" required></div>
+                            <div class="col-md-6"><label class="form-label">Nom</label><input name="last_name" class="form-control" value="{{auth()->user()->last_name}}" required></div>
+                            <div class="col-md-6"><label class="form-label">Email</label><input name="email" type="email" class="form-control" value="{{auth()->user()->email}}" required></div>
+                            <div class="col-md-6"><label class="form-label">Téléphone</label><input name="phone" class="form-control" value="{{auth()->user()->phone}}" required></div>
+                        </div>
+                        <button class="btn btn-primary mt-3">Mettre à jour</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between"><h5>Adresses</h5><button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addAddress">+ Ajouter</button></div>
+                <div class="card-body">
+                    @forelse($addresses as $address)
+                        <div class="border rounded p-3 mb-2">
+                            <strong>{{$address->label}}</strong>@if($address->is_default)<span class="badge bg-primary">Défaut</span>@endif
+                            <p class="mb-0">{{$address->street_address}}, {{$address->postal_code}} {{$address->city}}</p>
+                            <form action="{{ route('profile.addresses.destroy', $address) }}" method="POST" class="mt-2">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">Supprimer</button></form>
+                        </div>
+                    @empty
+                        <p class="text-muted">Aucune adresse</p>
+                    @endforelse
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header"><h5>Mot de passe</h5></div>
+                <div class="card-body">
+                    <form action="{{ route('profile.password') }}" method="POST">
+                        @csrf @method('PUT')
+                        <div class="row g-3">
+                            <div class="col-md-4"><label class="form-label">Actuel</label><input name="current_password" type="password" class="form-control" required></div>
+                            <div class="col-md-4"><label class="form-label">Nouveau</label><input name="password" type="password" class="form-control" required></div>
+                            <div class="col-md-4"><label class="form-label">Confirmer</label><input name="password_confirmation" type="password" class="form-control" required></div>
+                        </div>
+                        <button class="btn btn-warning mt-3">Changer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addAddress">
+    <div class="modal-dialog">
+        <form action="{{ route('profile.addresses.store') }}" method="POST">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header"><h5>Nouvelle adresse</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body">
+                    <div class="mb-3"><label class="form-label">Libellé</label><input name="label" class="form-control" placeholder="Domicile, Travail..." required></div>
+                    <div class="mb-3"><label class="form-label">Adresse</label><input name="street_address" class="form-control" required></div>
+                    <div class="row g-3"><div class="col-md-6"><label class="form-label">Ville</label><input name="city" class="form-control" required></div><div class="col-md-6"><label class="form-label">Code postal</label><input name="postal_code" class="form-control" required></div></div>
+                    <div class="mb-3 mt-3"><label class="form-label">Instructions</label><textarea name="instructions" class="form-control" rows="2"></textarea></div>
+                    <div class="form-check"><input name="is_default" value="1" class="form-check-input" type="checkbox"><label>Définir par défaut</label></div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-primary">Ajouter</button></div>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
+profile/orders.blade.php
+blade
+@extends('layouts.app')
+
+@section('title', 'Mes Commandes')
+
+@section('content')
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-box me-2"></i>Mes Commandes</h3>
+    
+    @forelse($orders as $order)
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>#{{ $order->order_number }}</strong>
+                        <br><small class="text-muted">{{ $order->restaurant->name }}</small>
+                        <br><small>{{ $order->created_at->format('d/m/Y H:i') }} - {{ $order->items->sum('quantity') }} articles</small>
+                    </div>
+                    <div class="text-end">
+                        <span class="badge bg-{{ $order->status_color }}">{{ $order->status_label }}</span>
+                        <br><strong class="text-primary">{{ number_format($order->total, 2) }}€</strong>
+                    </div>
+                    <a href="{{ route('profile.orders.show', $order) }}" class="btn btn-outline-primary btn-sm"><i class="bi bi-eye"></i></a>
+                </div>
+            </div>
+        </div>
+    @empty
+        <div class="text-center py-5">
+            <i class="bi bi-inbox display-1 text-muted"></i>
+            <h4>Aucune commande</h4>
+            <a href="{{ route('home') }}" class="btn btn-primary">Commander maintenant</a>
+        </div>
+    @endforelse
+    {{ $orders->links() }}
+</div>
+@endsection
+profile/order-detail.blade.php
+blade
+@extends('layouts.app')
+
+@section('title', 'Commande #'.$order->order_number)
+
+@section('content')
+<div class="container py-4">
+    <a href="{{ route('profile.orders') }}" class="btn btn-outline-secondary mb-3"><i class="bi bi-arrow-left"></i> Retour</a>
+    
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5>Commande #{{ $order->order_number }}</h5>
+                    <span class="badge bg-{{ $order->status_color }}">{{ $order->status_label }}</span>
+                    <p class="mt-2"><strong>Restaurant:</strong> {{ $order->restaurant->name }}</p>
+                    <p><strong>Date:</strong> {{ $order->created_at->format('d/m/Y H:i') }}</p>
+                    
+                    <h6 class="mt-3">Articles</h6>
+                    @foreach($order->items as $item)
+                        <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                            <span>{{ $item->quantity }}x {{ $item->product_name }}</span>
+                            <span>{{ number_format($item->total_price, 2) }}€</span>
+                        </div>
+                    @endforeach
+                    <hr>
+                    <div class="d-flex justify-content-between"><span>Sous-total</span><span>{{ number_format($order->subtotal, 2) }}€</span></div>
+                    @if($order->discount_amount>0)<div class="d-flex justify-content-between text-success"><span>Réduction</span><span>-{{ number_format($order->discount_amount, 2) }}€</span></div>@endif
+                    <div class="d-flex justify-content-between"><span>Livraison</span><span>{{ number_format($order->delivery_fee, 2) }}€</span></div>
+                    <div class="d-flex justify-content-between fw-bold"><span>Total</span><span>{{ number_format($order->total, 2) }}€</span></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            @if($order->can_be_cancelled)
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <button class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#cancelModal">Annuler la commande</button>
+                    </div>
+                </div>
+            @endif
+            @if(!$order->review && in_array($order->status, ['delivered','completed']))
+                <div class="card">
+                    <div class="card-header">Laisser un avis</div>
+                    <div class="card-body">
+                        <form action="{{ route('orders.review', $order) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label">Note</label>
+                                <select name="rating" class="form-select" required>
+                                    @for($i=5;$i>=1;$i--)<option value="{{$i}}">{{$i}} ⭐</option>@endfor
+                                </select>
+                            </div>
+                            <div class="mb-3"><label class="form-label">Commentaire</label><textarea name="comment" class="form-control" rows="3"></textarea></div>
+                            <button class="btn btn-primary w-100">Publier</button>
+                        </form>
+                    </div>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="cancelModal">
+    <div class="modal-dialog">
+        <form action="{{ route('orders.cancel', $order) }}" method="POST">
+            @csrf
+            <div class="modal-content">
+                <div class="modal-header"><h5>Annuler la commande</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+                <div class="modal-body"><label class="form-label">Raison</label><textarea name="reason" class="form-control" rows="3" required></textarea></div>
+                <div class="modal-footer"><button class="btn btn-danger">Confirmer</button></div>
+            </div>
+        </form>
+    </div>
+</div>
+@endsection
+profile/favorites.blade.php
+blade
+@extends('layouts.app')
+
+@section('title', 'Mes Favoris')
+
+@section('content')
+<div class="container py-4">
+    <h3 class="fw-bold mb-4"><i class="bi bi-heart me-2"></i>Mes Favoris</h3>
+    
+    <div class="row g-4">
+        @forelse($favorites as $favorite)
+            <div class="col-md-3">
+                <div class="card h-100 shadow-sm">
+                    <img src="{{ $favorite->product->primary_image_url ?? 'https://via.placeholder.com/200' }}" class="card-img-top" style="height:150px;object-fit:cover;">
+                    <div class="card-body">
+                        <h6>{{ $favorite->product->name }}</h6>
+                        <small class="text-muted">{{ $favorite->product->restaurant->name }}</small>
+                        <div class="d-flex justify-content-between align-items-center mt-2">
+                            <span class="fw-bold text-primary">{{ $favorite->product->formatted_price }}</span>
+                            <form action="{{ route('profile.favorites.toggle') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $favorite->product->id }}">
+                                <button class="btn btn-danger btn-sm"><i class="bi bi-heart-fill"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @empty
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-heartbreak display-1 text-muted"></i>
+                <h4>Aucun favori</h4>
+                <a href="{{ route('home') }}" class="btn btn-primary">Découvrir des plats</a>
+            </div>
+        @endforelse
+    </div>
+    {{ $favorites->links() }}
+</div>
+@endsection
+8. Recherche (search/results.blade.php)
+blade
+@extends('layouts.app')
+
+@section('title', 'Résultats pour "'.$query.'"')
+
+@section('content')
+<div class="container py-4">
+    <h4 class="mb-4">Résultats pour "{{ $query }}"</h4>
+    
+    @if($restaurants->count())
+        <h5>🏪 Restaurants ({{ $restaurants->count() }})</h5>
+        <div class="row g-4 mb-4">
+            @foreach($restaurants as $restaurant)
+                <div class="col-md-4">
+                    <a href="{{ route('restaurants.show', $restaurant) }}" class="text-decoration-none">
+                        <div class="card h-100 shadow-sm">
+                            <img src="{{ $restaurant->cover_url ?? 'https://via.placeholder.com/300x150' }}" class="card-img-top" style="height:150px;object-fit:cover;">
+                            <div class="card-body"><h6 class="text-dark">{{$restaurant->name}}</h6><small class="text-muted">{{$restaurant->city}}</small></div>
+                        </div>
+                    </a>
+                </div>
+            @endforeach
+        </div>
+    @endif
+    
+    @if($products->count())
+        <h5>🍽️ Plats ({{ $products->count() }})</h5>
+        <div class="row g-4">
+            @foreach($products as $product)
+                <div class="col-md-3">
+                    <div class="card h-100 shadow-sm">
+                        <img src="{{ $product->primary_image_url ?? 'https://via.placeholder.com/200' }}" class="card-img-top" style="height:150px;object-fit:cover;">
+                        <div class="card-body">
+                            <h6>{{$product->name}}</h6>
+                            <small>{{$product->restaurant->name}}</small>
+                            <div class="d-flex justify-content-between mt-2">
+                                <span class="fw-bold">{{$product->formatted_price}}</span>
+                                <button class="btn btn-primary btn-sm" onclick="addToCart({{$product->id}})"><i class="bi bi-cart-plus"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+    
+    @if(!$restaurants->count() && !$products->count())
+        <div class="text-center py-5">
+            <i class="bi bi-search display-1 text-muted"></i>
+            <h4>Aucun résultat</h4>
+            <p>Essayez avec d'autres termes</p>
+        </div>
+    @endif
+</div>
+@endsection
+9. Routes Publiques Complètes (routes/web.php)
+php
+<?php
+
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\MenuController;
+use App\Http\Controllers\RestaurantController;
+use App\Http\Controllers\OrderController;
+use Illuminate\Support\Facades\Route;
+
+// Accueil
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/search', [HomeController::class, 'search'])->name('search');
+
+// Restaurants
+Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restaurants.index');
+Route::get('/restaurants/{restaurant}', [RestaurantController::class, 'show'])->name('restaurants.show');
+
+// Menu
+Route::get('/restaurants/{restaurant}/menu', [MenuController::class, 'index'])->name('restaurant.menu');
+Route::get('/products/{product}', [MenuController::class, 'show'])->name('products.show');
+
+// Panier
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
+Route::put('/cart/update', [CartController::class, 'update'])->name('cart.update');
+Route::get('/cart/remove/{key}', [CartController::class, 'remove'])->name('cart.remove');
+Route::post('/cart/clear', [CartController::class, 'clear'])->name('cart.clear');
+Route::post('/cart/coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon');
+Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
+
+// Auth (Breeze)
+require __DIR__.'/auth.php';
+
+// Routes authentifiées
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Checkout
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
+    
+    // Commandes
+    Route::get('/orders/{order}/track', [OrderController::class, 'track'])->name('orders.track');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('/orders/{order}/review', [OrderController::class, 'addReview'])->name('orders.review');
+    
+    // Profil
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'index'])->name('index');
+        Route::put('/', [ProfileController::class, 'update'])->name('update');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
+        Route::get('/orders', [ProfileController::class, 'orders'])->name('orders');
+        Route::get('/orders/{order}', [ProfileController::class, 'orderDetail'])->name('orders.show');
+        Route::get('/favorites', [ProfileController::class, 'favorites'])->name('favorites');
+        Route::post('/favorites/toggle', [ProfileController::class, 'toggleFavorite'])->name('favorites.toggle');
+        Route::post('/addresses', [ProfileController::class, 'addAddress'])->name('addresses.store');
+        Route::delete('/addresses/{address}', [ProfileController::class, 'deleteAddress'])->name('addresses.destroy');
+    });
+});
+
+// Admin (déjà défini précédemment)
+require __DIR__.'/admin.php';
+10. Layout App (layouts/app.blade.php) - Version finale
+blade
+<!DOCTYPE html>
+<html lang="fr" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'RestaurantMS')</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body{font-family:'Inter',sans-serif;background:#f8f9fa}
+        .navbar{box-shadow:0 2px 10px rgba(0,0,0,.1)}
+        .card{border-radius:15px;border:none;box-shadow:0 2px 15px rgba(0,0,0,.05);transition:all .3s}
+        .card:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.1)}
+        .btn-primary{background:#e74c3c;border-color:#e74c3c}
+        .btn-primary:hover{background:#c0392b;border-color:#c0392b}
+        .btn-outline-primary{color:#e74c3c;border-color:#e74c3c}
+        .btn-outline-primary:hover{background:#e74c3c;color:#fff}
+        .footer{background:#2c3e50;color:#fff;margin-top:50px;padding:40px 0}
+        .hover-shadow:hover{box-shadow:0 10px 30px rgba(0,0,0,.15)!important}
+        .toast-container{position:fixed;top:80px;right:20px;z-index:9999}
+    </style>
+    @stack('styles')
+</head>
+<body>
+    @include('partials.navbar')
+    
+    <div class="toast-container">
+        @if(session('success'))<div class="toast text-bg-success show"><div class="d-flex"><div class="toast-body"><i class="bi bi-check-circle me-2"></i>{{session('success')}}</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>@endif
+        @if(session('error'))<div class="toast text-bg-danger show"><div class="d-flex"><div class="toast-body"><i class="bi bi-exclamation-circle me-2"></i>{{session('error')}}</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>@endif
+    </div>
+    
+    <main>@yield('content')</main>
+    
+    @include('partials.footer')
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        function addToCart(productId, quantity=1){
+            $.post('{{ route("cart.add") }}',{product_id:productId,quantity:quantity,_token:'{{ csrf_token() }}'},function(res){
+                showToast('Produit ajouté !','success');
+                updateCartCount();
+            });
+        }
+        function showToast(msg,type){
+            const t=$(`<div class="toast text-bg-${type} show"><div class="d-flex"><div class="toast-body">${msg}</div><button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`);
+            $('.toast-container').append(t);const b=new bootstrap.Toast(t);b.show();t.on('hidden.bs.toast',function(){$(this).remove()});
+        }
+        function updateCartCount(){
+            $.get('{{ route("cart.index") }}',function(d){const c=$(d).find('.cart-item').length;$('#cartCount').text(c||'').toggleClass('d-none',!c)});
+        }
+        document.addEventListener('DOMContentLoaded',function(){document.querySelectorAll('.toast').forEach(t=>new bootstrap.Toast(t).show())});
+    </script>
+    @stack('scripts')
+</body>
+</html>

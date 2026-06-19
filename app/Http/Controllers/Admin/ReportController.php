@@ -89,11 +89,18 @@ class ReportController extends Controller
         while ($current <= $dateRange[1]) {
             $dailySales[] = [
                 'date' => $current->format('Y-m-d'),
-                'revenue' => Order::where('restaurant_id', $restaurantId)->whereDate('created_at', $current)->paid()->sum('total'),
-                'orders' => Order::where('restaurant_id', $restaurantId)->whereDate('created_at', $current)->count(),
+                'revenue' => Order::where('restaurant_id', $restaurantId)
+                    ->whereDate('created_at', $current)
+                    ->paid()
+                    ->sum('total'),
+                'orders' => Order::where('restaurant_id', $restaurantId)
+                    ->whereDate('created_at', $current)
+                    ->count(),
             ];
             $current->addDay();
         }
+
+        $dailySales = collect($dailySales);
 
         return view('admin.reports.index', compact(
             'period', 'salesStats', 'ordersByType', 'ordersByStatus',

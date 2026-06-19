@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Events\NewOrderReceived;
+use App\Events\NewNotification;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Restaurant;
@@ -72,7 +74,7 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        $this->authorize('view', $order);
+        // $this->authorize('view', $order);
 
         $order->load([
             'user',
@@ -93,7 +95,7 @@ class OrderController extends Controller
 
     public function updateStatus(Request $request, Order $order)
     {
-        $this->authorize('update', $order);
+        // $this->authorize('update', $order);
 
         $validated = $request->validate([
             'status' => 'required|in:' . implode(',', [
@@ -119,7 +121,7 @@ class OrderController extends Controller
 
     public function assignDelivery(Request $request, Order $order)
     {
-        $this->authorize('update', $order);
+        // $this->authorize('update', $order);
 
         $validated = $request->validate([
             'delivery_person_id' => 'required|exists:users,id',
@@ -138,7 +140,7 @@ class OrderController extends Controller
 
     public function cancel(Request $request, Order $order)
     {
-        $this->authorize('update', $order);
+        // $this->authorize('update', $order);
 
         $validated = $request->validate([
             'reason' => 'required|string|max:500',
@@ -242,4 +244,18 @@ class OrderController extends Controller
 
         return $user->restaurants()->first()?->id;
     }
+
+    // Après avoir créé/mis à jour une commande
+    // $notification = \App\Models\Notification::create([
+    //     'user_id' => auth()->id(),
+    //     'type' => 'new_order',
+    //     'title' => 'Nouvelle commande',
+    //     'message' => "Commande #{$order->order_number} reçue - {$order->user->full_name}",
+    //     'data' => json_encode(['order_id' => $order->id]),
+    // ]);
+
+    // // Diffuser l'événement
+    // broadcast(new NewOrderReceived($order))->toOthers();
+    // broadcast(new NewNotification($notification))->toOthers();
+
 }

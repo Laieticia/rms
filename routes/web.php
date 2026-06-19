@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\MenuController as AdminMenuController;
 use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
@@ -142,6 +143,13 @@ Route::middleware(['auth', 'admin.access'])
             Route::post('/{user}/unblock', [UserController::class, 'unblock'])->name('unblock');
         });
         Route::resource('users', UserController::class);
+
+        // Staff Management
+        Route::prefix('staff')->name('staff.')->group(function () {
+            Route::post('/{user}/block', [StaffController::class, 'block'])->name('block');
+            Route::post('/{user}/unblock', [StaffController::class, 'unblock'])->name('unblock');
+        });
+        Route::resource('staff', StaffController::class);
         
         // Rapports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports');
