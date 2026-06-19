@@ -55,7 +55,7 @@ class ProductController extends Controller
         $sortDirection = $request->get('direction', 'desc');
         $query->orderBy($sortField, $sortDirection);
 
-        $products = $query->paginate(20)->withQueryString();
+        $products = $query->paginate(5)->withQueryString();
         $categories = Category::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
             ->active()
             ->get();

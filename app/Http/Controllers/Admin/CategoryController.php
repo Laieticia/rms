@@ -13,12 +13,15 @@ class CategoryController extends Controller
     public function index()
     {
         $restaurantId = $this->getRestaurantId();
-        
+         if (!$restaurantId) {
+            return redirect()->route('admin.dashboard')
+                ->with('error', 'Aucun restaurant configuré. Veuillez contacter l\'administrateur.');
+        }
         $categories = Category::where('restaurant_id', $restaurantId)
             ->withCount('products')
             ->with('parent')
             ->orderBy('sort_order')
-            ->get();
+            ->paginate(10);
 
         return view('admin.categories.index', compact('categories'));
     }

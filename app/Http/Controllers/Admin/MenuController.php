@@ -17,7 +17,7 @@ class MenuController extends Controller
         $menus = Menu::where('restaurant_id', $restaurantId)
             ->withCount('products')
             ->orderBy('sort_order')
-            ->get();
+            ->paginate(10);
 
         return view('admin.menus.index', compact('menus'));
     }

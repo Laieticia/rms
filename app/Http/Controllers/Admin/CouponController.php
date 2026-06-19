@@ -17,7 +17,7 @@ class CouponController extends Controller
         $coupons = Coupon::where('restaurant_id', $restaurantId)
             ->withCount('orders')
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('admin.coupons.index', compact('coupons'));
     }
