@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\HasRestaurant;
 use App\Http\Controllers\Controller;
 use App\Models\Review;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
+
+    use HasRestaurant;
+    
     public function index(Request $request)
     {
         $restaurantId = $this->getRestaurantId();
@@ -35,7 +39,7 @@ class ReviewController extends Controller
 
     public function show(Review $review)
     {
-        $review->load(['user', 'order', 'product', 'votes']);
+        $review->load(['user', 'order.items.product', 'product', 'votes']);
 
         return view('admin.reviews.show', compact('review'));
     }
@@ -67,6 +71,10 @@ class ReviewController extends Controller
 
         $review->update($validated);
 
+        if ($review->product) {
+            $review->product->updateRating();
+        }
+
         return back()->with('success', 'Avis mis à jour.');
     }
 
@@ -74,19 +82,13 @@ class ReviewController extends Controller
     {
         $review->delete();
 
+        if ($review->product) {
+            $review->product->updateRating();
+        }
+
         return redirect()
             ->route('admin.reviews.index')
             ->with('success', 'Avis supprimé.');
     }
 
-    private function getRestaurantId(): ?int
-    {
-        $user = auth()->user();
-        
-        if ($user->isAdmin()) {
-            return request()->get('restaurant_id');
-        }
-
-        return $user->restaurants()->first()?->id;
-    }
 }

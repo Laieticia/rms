@@ -1,137 +1,100 @@
 @extends('layouts.app')
 
-@section('title', 'Gestion des Categories')
+@section('title', 'Gestion des Coupons')
 
 @section('content')
 <div class="content-page">
     <div class="container-fluid">
-        <div class="row">
-            <div class="col-md-12">
-                @if(session('success'))
-                <div class="alert text-white bg-success" role="alert">
-                    <div class="iq-alert-icon">
-                        <i class="ri-alert-line"></i>
-                    </div>
-                    <div class="iq-alert-text">{{ session('success') }}</div>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <i class="ri-close-line"></i>
-                    </button>
-                </div>
-                @endif
-                @if(session('error'))
-                <div class="alert text-white bg-danger" role="alert">
-                    <div class="iq-alert-icon">
-                        <i class="ri-information-line"></i>
-                    </div>
-                    <div class="iq-alert-text">{{ session('error') }}</div>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <i class="ri-close-line"></i>
-                    </button>
-                </div>
-                @endif
-            </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold"><i class="bi bi-ticket-perforated me-2"></i>Coupons de réduction</h3>
+            <a href="{{ route('admin.coupons.create') }}" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> Nouveau coupon
+            </a>
         </div>
-        <div class="row">
-        <div class="col-sm-12">
-            <div class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="d-flex flex-wrap align-items-center justify-content-between">
-                                <div>
-                                    <h4 class="mb-3">Coupons</h4>
-                                </div>
-                                <a href="{{ route('admin.coupons.create') }}" class="btn btn-primary add-list"><i class="las la-plus mr-3"></i>Nouveau Coupons</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                   
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="table-responsive rounded mb-3">
-                                <table class="table mb-0 tbl-server-info">
-                                    <thead class="bg-white text-uppercase">
-                                        <tr class="ligth ligth-data">
-                                            <th>Code</th>
-                                            <th>Description</th>
-                                            <th>Type</th>
-                                            <th>Statut</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="ligth-body">
-                                        @forelse($coupons as $coupon)
-                                            <tr>  
-                                                 <td>
-                                                    <div class="d-flex align-items-center flex">
-                                                        
-                                                        <div>
-                                                            <strong>{{ $coupon->code }}</strong>
-                                                         
-                                                        </div>
-                                                        <td>
-                                                              <div>
-                                                            <strong>{{ $coupon->description }}</strong>
-                                                         
-                                                        </div>
-                                                        </td> 
-                                                         <td>
-                                                              <div>
-                                                            <strong>{{ $coupon->type }}</strong>
-                                                         
-                                                        </div>
-                                                        </td>
-                                                         <td>
-                                                    @if($coupon->is_available)
-                                                        <span class="badge bg-success">Actif</span>
-                                                    @else
-                                                        <span class="badge bg-danger">Inactif</span>
-                                                    @endif
-                                                </td>
-                                                    </div>
-                                                </td>                                           
-                                                <td>
-                                                    <div class="d-flex align-items-center list-action">
-                                                        <button type="button" class="badge badge-info mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Stock" data-bs-target="#stockModal{{ $coupon->id }}">
-                                                            <i class="ri-star-fill mr-2"></i>
-                                                        </button>
-                                                        <a class="badge bg-success mr-2" data-toggle="tooltip"
-                                                            data-placement="top" title="" data-original-title="Edit" href="{{ route('admin.coupons.edit', $coupon) }}">
-                                                            <i class="ri-pencil-line mr-0"></i>
-                                                        </a>
-                                                        <form action="{{ route('admin.coupons.destroy', $coupon) }}" method="POST" class="d-inline">
-                                                            @csrf @method('DELETE')
-                                                            <button type="submit" class="badge bg-warning mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Supprimer" onclick="return confirm('Supprimer ce coupon ?')">
-                                                                <i class="ri-delete-bin-line mr-0"></i>
-                                                            </button>
-                                                        </form>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="7" class="text-center py-4">
-                                                    <i class="bi bi-inbox display-4 text-muted"></i>
-                                                    <p class="mt-2">Aucun coupon trouvé</p>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                             {{ $coupons->links() }}
-                        </div>
-                    </div>
+
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th>Valeur</th>
+                                <th>Min. commande</th>
+                                <th>Utilisations</th>
+                                <th>Validité</th>
+                                <th>Statut</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($coupons as $coupon)
+                                <tr>
+                                    <td><span class="badge bg-dark fs-6">{{ $coupon->code }}</span></td>
+                                    <td>{{ Str::limit($coupon->description, 40) }}</td>
+                                    <td>
+                                        @if($coupon->type == 'percentage')
+                                            <span class="badge bg-info">Pourcentage</span>
+                                        @elseif($coupon->type == 'fixed_amount')
+                                            <span class="badge bg-primary">Montant fixe</span>
+                                        @else
+                                            <span class="badge bg-success">Livraison offerte</span>
+                                        @endif
+                                    </td>
+                                    <td><strong>{{ $coupon->formatted_value }}</strong></td>
+                                    <td>{{ number_format($coupon->min_order_amount, 2) }} €</td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="me-2">{{ $coupon->used_count }}/{{ $coupon->max_uses ?? '∞' }}</span>
+                                            <div class="progress flex-grow-1" style="height:6px;">
+                                                <div class="progress-bar bg-{{ $coupon->usage_percentage > 80 ? 'danger' : 'success' }}" 
+                                                    style="width: {{ $coupon->usage_percentage }}%"></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if($coupon->expires_at)
+                                            @if($coupon->is_expired)
+                                                <span class="badge bg-danger">Expiré</span>
+                                            @else
+                                                <small>{{ $coupon->expires_at->format('d/m/Y') }}</small>
+                                            @endif
+                                        @else
+                                            <small class="text-muted">Illimitée</small>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        @if($coupon->is_valid)
+                                            <span class="badge bg-success">Actif</span>
+                                        @else
+                                            <span class="badge bg-{{ $coupon->is_expired ? 'danger' : 'secondary' }}">
+                                                {{ $coupon->is_expired ? 'Expiré' : 'Inactif' }}
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ route('admin.coupons.edit', $coupon) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="ri-pencil-line mr-0"></i>
+                                            </a>
+                                            <form action="{{ route('admin.coupons.destroy', $coupon) }}" method="POST" 
+                                                onsubmit="return confirm('Supprimer ce coupon ?')" class="d-inline">
+                                                @csrf @method('DELETE')
+                                                <button class="btn btn-sm btn-outline-danger"><i class="ri-delete-bin-line mr-0"></i></button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="9" class="text-center py-4">Aucun coupon créé</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </div>
 @endsection
-
-@push('scripts')
-
-@endpush

@@ -177,25 +177,20 @@
                                             @foreach($product->images as $image)
                                                 <div class="col-6 position-relative">
                                                     <img src="{{ asset('storage/'.$image->path) }}" class="img-fluid rounded" alt="">
-                                                    <form action="{{ route('admin.products.images.destroy', $image) }}" method="POST" 
-                                                        class="position-absolute top-0 end-0 m-1">
-                                                        @csrf @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm rounded-circle" 
-                                                                onclick="return confirm('Supprimer cette image ?')">
-                                                            <i class="bi bi-x"></i>
-                                                        </button>
-                                                    </form>
+                                                    <button type="submit" form="delete-image-{{ $image->id }}" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1"
+                                                            onclick="return confirm('Supprimer cette image ?')">
+                                                        <i class="bi bi-x"></i>
+                                                    </button>
                                                 </div>
                                             @endforeach
                                         </div>
-                                        
-                                        <form action="{{ route('admin.products.images.store', $product) }}" method="POST" enctype="multipart/form-data">
-                                            @csrf
-                                            <input type="file" class="form-control image-file mb-2" name="images[]" accept="image/*" multiple>
-                                            <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+
+                                        <div>
+                                            <input type="file" class="form-control image-file mb-2" id="imageFilesInput" name="images[]" accept="image/*" multiple form="product-image-upload-form">
+                                            <button type="submit" form="product-image-upload-form" class="btn btn-outline-primary btn-sm w-100">
                                                 <i class="bi bi-upload"></i> Ajouter des images
                                             </button>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -208,6 +203,17 @@
                             <a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary btn-lg ms-2">Annuler</a>
                         </div>
                     </form>
+
+                    @foreach($product->images as $image)
+                        <form id="delete-image-{{ $image->id }}" action="{{ route('admin.products.images.destroy', $image) }}" method="POST" style="display:none;">
+                            @csrf
+                            @method('DELETE')
+                        </form>
+                    @endforeach
+
+                    <form id="product-image-upload-form" action="{{ route('admin.products.images.store', $product) }}" method="POST" enctype="multipart/form-data" style="display:none;">
+                        @csrf
+                    </form>
                 </div>
             </div>
         </div>
@@ -215,7 +221,3 @@
     </div>
 </div>
 @endsection
-
-@push('scripts')
-
-@endpush

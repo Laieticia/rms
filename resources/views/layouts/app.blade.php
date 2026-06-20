@@ -49,6 +49,9 @@
 
     <!-- app JavaScript -->
     <script src="{{url('admin/assets/js/app.js')}}"></script>
+    <script>
+        window.userId = {{ auth()->id() }};
+    </script>
 
     @stack('scripts')
 </body>
