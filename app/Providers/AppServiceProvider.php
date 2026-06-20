@@ -2,7 +2,20 @@
 
 namespace App\Providers;
 
+use App\Models\Category;
+use App\Models\Coupon;
+use App\Models\Menu;
+use App\Models\Order;
+use App\Models\Product;
+use App\Models\Review;
+use App\Policies\CategoryPolicy;
+use App\Policies\CouponPolicy;
+use App\Policies\MenuPolicy;
+use App\Policies\OrderPolicy;
+use App\Policies\ProductPolicy;
+use App\Policies\ReviewPolicy;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 
@@ -22,10 +35,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-<<<<<<< HEAD
-         Schema::defaultStringLength(125);
-         Paginator::useBootstrapFive();
-=======
         Schema::defaultStringLength(125);
         Gate::policy(Product::class, ProductPolicy::class);
         Gate::policy(Category::class, CategoryPolicy::class);
@@ -34,6 +43,5 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Order::class, OrderPolicy::class);
         Gate::policy(Review::class, ReviewPolicy::class);
         Paginator::useBootstrapFive();
->>>>>>> origin/hdcode
     }
 }
