@@ -19,7 +19,7 @@
         </div>
 
         <div class="row g-4 mb-4">
-            @foreach([['Commandes',$salesStats['total_orders'],'primary','cart-check'],['CA',$salesStats['total_revenue'].'€','success','currency-euro'],['Panier moy.',$salesStats['average_order'].'€','info','graph-up'],['Taux complétion',$salesStats['completion_rate'].'%','warning','check-circle']] as $stat)
+            @foreach([['Commandes',$salesStats['total_orders'],'primary','cart-check'],['CA',\App\Helpers\CameroonHelper::formatCurrency($salesStats['total_revenue']),'success','cash-stack'],['Panier moy.',\App\Helpers\CameroonHelper::formatCurrency($salesStats['average_order']),'info','graph-up'],['Taux complétion',$salesStats['completion_rate'].'%','warning','check-circle']] as $stat)
                 <div class="col-md-3">
                     <div class="card bg-{{$stat[2]}} text-white"><div class="card-body"><h6>{{$stat[0]}}</h6><h3>{{$stat[1]}}</h3></div></div>
                 </div>
@@ -34,7 +34,7 @@
                 @foreach($topProducts as $i=>$p)<div class="d-flex justify-content-between mb-2"><span>{{$i+1}}. {{$p->name}}</span><span class="badge bg-success">{{$p->total_sold}}</span></div>@endforeach
             </div></div></div>
             <div class="col-md-6"><div class="card"><div class="card-header">Top Clients</div><div class="card-body">
-                @foreach($topCustomers as $i=>$c)<div class="d-flex justify-content-between mb-2"><span>{{$i+1}}. {{$c->full_name}}</span><span>{{number_format($c->total_spent??0,2)}}€</span></div>@endforeach
+                @foreach($topCustomers as $i=>$c)<div class="d-flex justify-content-between mb-2"><span>{{$i+1}}. {{$c->full_name}}</span><span>{{ \App\Helpers\CameroonHelper::formatCurrency($c->total_spent ?? 0) }}</span></div>@endforeach
             </div></div></div>
         </div>
     </div>
@@ -112,7 +112,7 @@
                 data: {
                     labels: {!! json_encode($dailySales->pluck('date')->toArray()) !!},
                     datasets: [{
-                        label: 'Revenus (€)',
+                        label: 'Revenus (FCFA)',
                         data: {!! json_encode($dailySales->pluck('revenue')->toArray()) !!},
                         borderColor: '#e74c3c',
                         backgroundColor: 'rgba(231, 76, 60, 0.1)',
@@ -134,7 +134,7 @@
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return value + ' €';
+                                    return value + ' FCFA';
                                 }
                             }
                         }

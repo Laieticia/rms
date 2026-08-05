@@ -326,14 +326,5 @@ class ProductController extends Controller
         return back()->with('success', 'Image supprimée avec succès.');
     }
 
-    // protected function getRestaurantId(): int
-    // {
-    //     $user = auth()->user();
-        
-    //     if ($user->isAdmin() && request()->filled('restaurant_id')) {
-    //         return request()->restaurant_id;
-    //     }
-
-    //     return $user->restaurants()->first()->id;
-    // }
+    // getRestaurantId() est fourni par le trait HasRestaurant
 }

@@ -40,7 +40,7 @@ class NewOrderReceived implements ShouldBroadcast
             'order_id' => $this->order->id,
             'order_number' => $this->order->order_number,
             'customer_name' => $this->order->user->full_name,
-            'total' => number_format($this->order->total, 2) . ' €',
+            'total' => \App\Helpers\CameroonHelper::formatCurrency($this->order->total),
             'items_count' => $this->order->items->sum('quantity'),
             'type' => $this->order->type,
             'type_label' => $this->order->type == 'delivery' ? '🛵 Livraison' : ($this->order->type == 'takeaway' ? '🥡 À emporter' : '🏠 Sur place'),

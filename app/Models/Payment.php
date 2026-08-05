@@ -44,7 +44,7 @@ class Payment extends Model
     public function getFormattedAmountAttribute(): string
     {
         $prefix = $this->type === 'refund' ? '-' : '';
-        return $prefix . number_format(abs($this->amount), 2, ',', ' ') . ' €';
+        return $prefix . \App\Helpers\CameroonHelper::formatCurrency(abs($this->amount));
     }
 
     public function getStatusLabelAttribute(): string

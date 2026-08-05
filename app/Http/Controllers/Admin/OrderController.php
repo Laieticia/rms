@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Events\NewOrderReceived;
 use App\Events\NewNotification;
 use App\Http\Controllers\Controller;
+use App\HasRestaurant;
 use App\Models\Order;
 use App\Models\Restaurant;
 use App\Models\User;
@@ -13,6 +14,8 @@ use App\Events\OrderStatusChanged;
 
 class OrderController extends Controller
 {
+    use HasRestaurant;
+
     public function index(Request $request)
     {
         $restaurantId = $this->getRestaurantId();
@@ -234,16 +237,7 @@ class OrderController extends Controller
         return in_array($newStatus, $allowedTransitions);
     }
 
-    protected function getRestaurantId(): ?int
-    {
-        $user = auth()->user();
-        
-        if ($user->isAdmin()) {
-            return request()->get('restaurant_id');
-        }
-
-        return $user->restaurants()->first()?->id;
-    }
+    // getRestaurantId() est fourni par le trait HasRestaurant
 
     // Après avoir créé/mis à jour une commande
     // $notification = \App\Models\Notification::create([

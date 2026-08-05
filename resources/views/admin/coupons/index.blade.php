@@ -44,7 +44,7 @@
                                         @endif
                                     </td>
                                     <td><strong>{{ $coupon->formatted_value }}</strong></td>
-                                    <td>{{ number_format($coupon->min_order_amount, 2) }} €</td>
+                                    <td>{{ \App\Helpers\CameroonHelper::formatCurrency($coupon->min_order_amount) }}</td>
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <span class="me-2">{{ $coupon->used_count }}/{{ $coupon->max_uses ?? '∞' }}</span>

@@ -34,7 +34,7 @@
                                     <select name="type" class="form-control @error('type') is-invalid @enderror" id="couponType" required>
                                         <option value="">Choisir...</option>
                                         <option value="percentage" {{ old('type') == 'percentage' ? 'selected' : '' }}>Pourcentage (%)</option>
-                                        <option value="fixed_amount" {{ old('type') == 'fixed_amount' ? 'selected' : '' }}>Montant fixe (€)</option>
+                                        <option value="fixed_amount" {{ old('type') == 'fixed_amount' ? 'selected' : '' }}>Montant fixe (FCFA)</option>
                                         <option value="free_delivery" {{ old('type') == 'free_delivery' ? 'selected' : '' }}>Livraison gratuite</option>
                                     </select>
                                     @error('type')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -45,17 +45,17 @@
                                     <input type="number" step="0.01" name="value" class="form-control @error('value') is-invalid @enderror" 
                                         value="{{ old('value') }}" id="valueInput">
                                     @error('value')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                    <small class="text-muted" id="valueHint">Ex: 10 pour 10% ou 5 pour 5€</small>
+                                    <small class="text-muted" id="valueHint">Ex: 10 pour 10% ou 500 pour 500 FCFA</small>
                                 </div>
                                 
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Montant minimum (€)</label>
+                                    <label class="form-label">Montant minimum (FCFA)</label>
                                     <input type="number" step="0.01" name="min_order_amount" class="form-control" 
                                         value="{{ old('min_order_amount', 0) }}">
                                 </div>
                                 
                                 <div class="col-md-4 mb-3">
-                                    <label class="form-label">Réduction max (€)</label>
+                                    <label class="form-label">Réduction max (FCFA)</label>
                                     <input type="number" step="0.01" name="max_discount_amount" class="form-control" 
                                         value="{{ old('max_discount_amount') }}">
                                     <small class="text-muted">Pour plafonner la réduction</small>
@@ -136,7 +136,7 @@ document.getElementById('couponType').addEventListener('change', function() {
             valueHint.textContent = 'Ex: 10 pour 10% de réduction';
             valueInput.placeholder = '10';
         } else {
-            valueHint.textContent = 'Ex: 5 pour 5€ de réduction';
+            valueHint.textContent = 'Ex: 500 pour 500 FCFA de réduction';
             valueInput.placeholder = '5';
         }
     }

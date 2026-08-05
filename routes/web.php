@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ReportController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -18,40 +19,18 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MenuController;
 use App\Http\Controllers\RestaurantController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ReservationController;
 
 use Illuminate\Support\Facades\Route;
 
 
-// Route de test - À SUPPRIMER après vérification
-// Route::get('/test-auth', function () {
-//     $user = auth()->user();
-    
-//     return response()->json([
-//         'authenticated' => auth()->check(),
-//         'user_id' => $user->id ?? null,
-//         'user_name' => $user->full_name ?? null,
-//         'is_active' => $user->is_active ?? null,
-//         'is_blocked' => $user->is_blocked ?? null,
-//         'roles' => $user ? $user->getRoleNames() : [],
-//         'permissions' => $user ? $user->getAllPermissions()->pluck('name') : [],
-//     ]);
-// })->middleware('auth');
-
-// // Route test admin
-// Route::get('/test-admin', function () {
-//     return 'Vous avez accès à l\'admin !';
-// })->middleware(['auth', 'admin.access']);
-
-
 // Accueil
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [HomeController::class, 'search'])->name('search');
 
 // Restaurants
 Route::get('/restaurants', [RestaurantController::class, 'index'])->name('restaurants.index');
 Route::get('/restaurants/{restaurant}', [RestaurantController::class, 'show'])->name('restaurants.show');
-Route::get('/restaurants/{restaurant}/menu', [MenuController::class, 'index'])->name('restaurant.menu');
-
 
 // Menu
 Route::get('/restaurants/{restaurant}/menu', [MenuController::class, 'index'])->name('restaurant.menu');
@@ -76,11 +55,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Commandes
     Route::get('/orders/{order}/track', [OrderController::class, 'track'])->name('orders.track');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::get('/orders/{order}/review', [OrderController::class, 'reviewForm'])->name('orders.review.create');
     Route::post('/orders/{order}/review', [OrderController::class, 'addReview'])->name('orders.review');
     
+    // Réservations
+    Route::get('/reservations', [ReservationController::class, 'index'])->name('reservations.index');
+    Route::get('/restaurants/{restaurant}/reserver', [ReservationController::class, 'create'])->name('reservations.create');
+    Route::post('/restaurants/{restaurant}/reserver', [ReservationController::class, 'store'])->name('reservations.store');
+    Route::get('/reservations/{reservation}', [ReservationController::class, 'show'])->name('reservations.show');
+
     // Profil
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'index'])->name('index');
+        Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
         Route::put('/', [ProfileController::class, 'update'])->name('update');
         Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
@@ -89,7 +76,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/favorites', [ProfileController::class, 'favorites'])->name('favorites');
         Route::post('/favorites/toggle', [ProfileController::class, 'toggleFavorite'])->name('favorites.toggle');
         Route::post('/addresses', [ProfileController::class, 'addAddress'])->name('addresses.store');
+        Route::put('/addresses/{address}', [ProfileController::class, 'updateAddress'])->name('addresses.update');
         Route::delete('/addresses/{address}', [ProfileController::class, 'deleteAddress'])->name('addresses.destroy');
+        Route::get('/loyalty', [ProfileController::class, 'loyalty'])->name('loyalty');
     });
 });
 
@@ -151,6 +140,13 @@ Route::middleware(['auth', 'admin.access'])
         });
         Route::resource('staff', StaffController::class);
         
+        // Réservations
+        Route::get('/reservations', [AdminReservationController::class, 'index'])->name('reservations.index');
+        Route::get('/reservations/{reservation}', [AdminReservationController::class, 'show'])->name('reservations.show');
+        Route::post('/reservations/{reservation}/confirm', [AdminReservationController::class, 'confirm'])->name('reservations.confirm');
+        Route::post('/reservations/{reservation}/cancel', [AdminReservationController::class, 'cancel'])->name('reservations.cancel');
+        Route::post('/reservations/{reservation}/complete', [AdminReservationController::class, 'complete'])->name('reservations.complete');
+
         // Rapports
         Route::get('/reports', [ReportController::class, 'index'])->name('reports');
         Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');

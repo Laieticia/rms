@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\HasRestaurant;
 use App\Models\User;
 use App\Models\Restaurant;
 use Illuminate\Http\Request;
@@ -11,6 +12,8 @@ use Spatie\Permission\Models\Role;
 
 class StaffController extends Controller
 {
+    use HasRestaurant;
+
     /**
      * Afficher la liste du personnel
      */
@@ -276,14 +279,5 @@ class StaffController extends Controller
     /**
      * Récupérer l'ID du restaurant
      */
-    private function getRestaurantId(): int
-    {
-        $staff = auth()->user();
-        
-        if ($staff->isAdmin() && request()->filled('restaurant_id')) {
-            return request()->restaurant_id;
-        }
-
-        return $staff->restaurants()->first()?->id ?? 1;
-    }
+    // getRestaurantId() est fourni par le trait HasRestaurant
 }

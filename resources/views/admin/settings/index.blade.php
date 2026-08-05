@@ -21,8 +21,8 @@
                                 <div class="col-12"><label class="form-label">Adresse</label><input name="address" class="form-control" value="{{$restaurant->address}}" required></div>
                                 <div class="col-md-4"><label class="form-label">Ville</label><input name="city" class="form-control" value="{{$restaurant->city}}" required></div>
                                 <div class="col-md-4"><label class="form-label">Code postal</label><input name="postal_code" class="form-control" value="{{$restaurant->postal_code}}" required></div>
-                                <div class="col-md-4"><label class="form-label">Commande min (€)</label><input name="minimum_order" type="number" step="0.01" class="form-control" value="{{$restaurant->minimum_order}}"></div>
-                                <div class="col-md-3"><label class="form-label">Livraison (€)</label><input name="delivery_fee" type="number" step="0.01" class="form-control" value="{{$restaurant->delivery_fee}}"></div>
+                                <div class="col-md-4"><label class="form-label">Commande min (FCFA)</label><input name="minimum_order" type="number" step="0.01" class="form-control" value="{{$restaurant->minimum_order}}"></div>
+                                <div class="col-md-3"><label class="form-label">Livraison (FCFA)</label><input name="delivery_fee" type="number" step="0.01" class="form-control" value="{{$restaurant->delivery_fee}}"></div>
                                 <div class="col-md-3"><label class="form-label">TVA (%)</label><input name="tax_rate" type="number" step="0.01" class="form-control" value="{{$restaurant->tax_rate}}"></div>
                                 <div class="col-md-3"><label class="form-label">Temps livraison (min)</label><input name="estimated_delivery_time" type="number" class="form-control" value="{{$restaurant->estimated_delivery_time}}"></div>
                             </div>

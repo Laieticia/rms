@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Order;
 use App\Models\Restaurant;
 use App\Models\User;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class NotificationService
 {
@@ -77,5 +79,60 @@ class NotificationService
                 'address' => $order->delivery_address,
             ]),
         ]);
+    }
+
+    /**
+     * Envoyer un SMS via la passerelle Nexah.
+     * En local (SMS_DRIVER=log dans .env), le SMS est simplement journalisé
+     * au lieu d'être réellement envoyé — pratique pour développer sans compte Nexah.
+     */
+    public function sendSMS(string $phone, string $message): bool
+    {
+        $validation = PhoneValidationService::validate($phone);
+
+        if (!$validation['valid']) {
+            Log::warning("SMS non envoyé : numéro invalide ({$phone})");
+            return false;
+        }
+
+        $driver = config('services.nexah.driver', 'log');
+
+        if ($driver === 'log') {
+            Log::info("[SMS SIMULÉ] À {$validation['formatted']} : {$message}");
+            return true;
+        }
+
+        try {
+            $response = Http::asForm()->post(config('services.nexah.url'), [
+                'user' => config('services.nexah.user'),
+                'password' => config('services.nexah.password'),
+                'senderid' => config('services.nexah.sender_id'),
+                'sms' => $message,
+                // Nexah attend le numéro au format local sans le +237
+                'mobiles' => PhoneValidationService::cleanPhone($phone),
+            ]);
+
+            if (!$response->successful()) {
+                Log::error("Échec envoi SMS Nexah pour {$phone} : " . $response->body());
+                return false;
+            }
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error("Erreur envoi SMS Nexah pour {$phone} : " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Envoyer la facture/récapitulatif d'une commande au client par email.
+     */
+    public function sendInvoice(Order $order): void
+    {
+        if (!$order->user || !$order->user->email) {
+            return;
+        }
+
+        $order->user->notify(new \App\Notifications\OrderInvoice($order));
     }
 }

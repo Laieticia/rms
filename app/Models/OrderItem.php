@@ -59,12 +59,12 @@ class OrderItem extends Model
     // Accesseurs
     public function getFormattedUnitPriceAttribute(): string
     {
-        return number_format($this->unit_price, 2, ',', ' ') . ' €';
+        return \App\Helpers\CameroonHelper::formatCurrency($this->unit_price);
     }
 
     public function getFormattedTotalPriceAttribute(): string
     {
-        return number_format($this->total_price, 2, ',', ' ') . ' €';
+        return \App\Helpers\CameroonHelper::formatCurrency($this->total_price);
     }
 
     // Méthodes

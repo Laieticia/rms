@@ -187,43 +187,43 @@
                                                         @if($item->options->count() > 0)
                                                             <br><small class="text-muted">
                                                                 @foreach($item->options as $option)
-                                                                    + {{ $option->item_name }} ({{ number_format($option->price, 2) }}€)
+                                                                    + {{ $option->item_name }} ({{ \App\Helpers\CameroonHelper::formatCurrency($option->price) }})
                                                                 @endforeach
                                                             </small>
                                                         @endif
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td class="text-center">{{ number_format($item->unit_price, 2) }} €</td>
+                                            <td class="text-center">{{ \App\Helpers\CameroonHelper::formatCurrency($item->unit_price) }}</td>
                                             <td class="text-center">{{ $item->quantity }}</td>
-                                            <td class="text-end fw-bold">{{ number_format($item->total_price, 2) }} €</td>
+                                            <td class="text-end fw-bold">{{ \App\Helpers\CameroonHelper::formatCurrency($item->total_price) }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot class="table-light">
                                     <tr>
                                         <td colspan="3" class="text-end">Sous-total</td>
-                                        <td class="text-end">{{ number_format($order->subtotal, 2) }} €</td>
+                                        <td class="text-end">{{ \App\Helpers\CameroonHelper::formatCurrency($order->subtotal) }}</td>
                                     </tr>
                                     @if($order->discount_amount > 0)
                                         <tr>
                                             <td colspan="3" class="text-end text-success">Réduction</td>
-                                            <td class="text-end text-success">-{{ number_format($order->discount_amount, 2) }} €</td>
+                                            <td class="text-end text-success">-{{ \App\Helpers\CameroonHelper::formatCurrency($order->discount_amount) }}</td>
                                         </tr>
                                     @endif
                                     <tr>
                                         <td colspan="3" class="text-end">TVA</td>
-                                        <td class="text-end">{{ number_format($order->tax_amount, 2) }} €</td>
+                                        <td class="text-end">{{ \App\Helpers\CameroonHelper::formatCurrency($order->tax_amount) }}</td>
                                     </tr>
                                     @if($order->delivery_fee > 0)
                                         <tr>
                                             <td colspan="3" class="text-end">Frais de livraison</td>
-                                            <td class="text-end">{{ number_format($order->delivery_fee, 2) }} €</td>
+                                            <td class="text-end">{{ \App\Helpers\CameroonHelper::formatCurrency($order->delivery_fee) }}</td>
                                         </tr>
                                     @endif
                                     <tr class="fw-bold fs-5">
                                         <td colspan="3" class="text-end">Total</td>
-                                        <td class="text-end text-primary">{{ number_format($order->total, 2) }} €</td>
+                                        <td class="text-end text-primary">{{ \App\Helpers\CameroonHelper::formatCurrency($order->total) }}</td>
                                     </tr>
                                 </tfoot>
                             </table>

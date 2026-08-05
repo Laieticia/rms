@@ -124,7 +124,7 @@ class OrderEventListener implements ShouldQueue
 
     protected function awardLoyaltyPoints($order): void
     {
-        $points = floor($order->total); // 1 point par euro dépensé
+        $points = floor($order->total / 100); // 1 point par tranche de 100 FCFA dépensée
         
         // Bonus points selon le type de commande
         if ($order->type === 'delivery') {

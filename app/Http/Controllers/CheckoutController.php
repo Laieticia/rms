@@ -2,29 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewOrderPlaced;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\Product;
-use App\Models\Coupon;
-use App\Events\NewOrderPlaced;
+use App\Services\CameroonianPaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Stripe\StripeClient;
 
 class CheckoutController extends Controller
 {
-    protected $stripe;
-
-    public function __construct()
-    {
-        $this->middleware('auth');
-        $this->stripe = new StripeClient(config('services.stripe.secret'));
-    }
-
     public function index()
     {
         $cart = session()->get('cart', []);
-        
+
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Votre panier est vide.');
         }
@@ -34,26 +27,27 @@ class CheckoutController extends Controller
         $discount = session()->get('discount', 0);
         $couponCode = session()->get('coupon_code');
 
-        // Récupérer l'adresse par défaut de l'utilisateur
         $defaultAddress = auth()->user()->getDefaultAddress();
         $addresses = auth()->user()->addresses;
 
-        // Calculer les frais de livraison
-        $deliveryFee = 0;
-        if ($defaultAddress && isset($cartItems[0])) {
-            $restaurant = $cartItems[0]['product']->restaurant;
-            $deliveryFee = $restaurant->getDeliveryFee(
-                $defaultAddress->latitude,
-                $defaultAddress->longitude
-            );
-        }
+        $restaurant = $cartItems[0]['product']->restaurant;
 
-        $taxRate = isset($cartItems[0]) ? $cartItems[0]['product']->restaurant->tax_rate : 20;
+        $deliveryFee = $defaultAddress
+            ? $restaurant->getDeliveryFee($defaultAddress->latitude, $defaultAddress->longitude)
+            : $restaurant->delivery_fee;
+
+        $taxRate = $restaurant->tax_rate ?? 0;
         $taxAmount = $subtotal * ($taxRate / 100);
         $total = $subtotal + $taxAmount + $deliveryFee - $discount;
 
+        $paymentMethods = array_intersect_key(
+            CameroonianPaymentService::getPaymentMethods(),
+            array_flip(['cash', 'mtn_money', 'orange_money', 'nexttel'])
+        );
+
         return view('checkout.index', compact(
             'cartItems',
+            'restaurant',
             'subtotal',
             'discount',
             'taxAmount',
@@ -61,14 +55,15 @@ class CheckoutController extends Controller
             'total',
             'couponCode',
             'defaultAddress',
-            'addresses'
+            'addresses',
+            'paymentMethods'
         ));
     }
 
     public function process(Request $request)
     {
         $cart = session()->get('cart', []);
-        
+
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'Votre panier est vide.');
         }
@@ -76,8 +71,8 @@ class CheckoutController extends Controller
         $validated = $request->validate([
             'address_id' => 'required|exists:addresses,id',
             'delivery_instructions' => 'nullable|string|max:500',
-            'payment_method' => 'required|in:card,cash,online',
-            'stripe_token' => 'required_if:payment_method,card',
+            'payment_method' => 'required|in:mtn_money,orange_money,nexttel,cash',
+            'payment_phone' => 'required_unless:payment_method,cash|nullable|string',
             'notes' => 'nullable|string|max:500',
             'terms' => 'required|accepted',
         ]);
@@ -93,18 +88,12 @@ class CheckoutController extends Controller
             $restaurant = $cartItems[0]['product']->restaurant;
             $address = auth()->user()->addresses()->findOrFail($validated['address_id']);
 
-            // Calculer les frais de livraison
             $deliveryFee = $restaurant->getDeliveryFee($address->latitude, $address->longitude);
-            $taxAmount = $subtotal * ($restaurant->tax_rate / 100);
+            $taxAmount = $subtotal * (($restaurant->tax_rate ?? 0) / 100);
             $total = $subtotal + $taxAmount + $deliveryFee - $discount;
 
-            // Récupérer le coupon
-            $coupon = null;
-            if ($couponCode) {
-                $coupon = Coupon::where('code', $couponCode)->first();
-            }
+            $coupon = $couponCode ? Coupon::where('code', $couponCode)->first() : null;
 
-            // Créer la commande
             $order = Order::create([
                 'restaurant_id' => $restaurant->id,
                 'user_id' => auth()->id(),
@@ -125,17 +114,16 @@ class CheckoutController extends Controller
                 'delivery_postal_code' => $address->postal_code,
                 'delivery_latitude' => $address->latitude,
                 'delivery_longitude' => $address->longitude,
-                'delivery_instructions' => $validated['delivery_instructions'],
-                'notes' => $validated['notes'],
+                'delivery_instructions' => $validated['delivery_instructions'] ?? null,
+                'notes' => $validated['notes'] ?? null,
                 'estimated_delivery_time' => $restaurant->estimated_delivery_time,
                 'source' => 'web',
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
             ]);
 
-            // Créer les items de la commande
             foreach ($cartItems as $item) {
-                $orderItem = OrderItem::create([
+                OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['product']->id,
                     'product_name' => $item['product']->name,
@@ -150,83 +138,63 @@ class CheckoutController extends Controller
                     ],
                 ]);
 
-                // Décrémenter le stock
                 if ($item['product']->track_inventory) {
                     $item['product']->decrementStock($item['quantity']);
                 }
 
-                // Incrémenter le compteur de commandes
                 $item['product']->incrementOrders($item['quantity']);
             }
 
-            // Traiter le paiement
-            if ($validated['payment_method'] === 'card') {
-                try {
-                    $paymentIntent = $this->stripe->paymentIntents->create([
-                        'amount' => (int)($total * 100),
-                        'currency' => 'eur',
-                        'payment_method' => $validated['stripe_token'],
-                        'confirmation_method' => 'manual',
-                        'confirm' => true,
-                        'metadata' => [
-                            'order_id' => $order->id,
-                            'order_number' => $order->order_number,
-                        ],
-                    ]);
+            // Paiement
+            if ($validated['payment_method'] === 'cash') {
+                $order->update(['payment_status' => 'pending']);
+            } else {
+                $result = CameroonianPaymentService::collectMobileMoney(
+                    $validated['payment_phone'],
+                    (float) $total,
+                    $order->order_number
+                );
 
-                    $order->update([
-                        'payment_status' => 'paid',
-                        'payment_id' => $paymentIntent->id,
-                        'payment_gateway' => 'stripe',
-                        'paid_at' => now(),
-                    ]);
+                Payment::create([
+                    'order_id' => $order->id,
+                    'user_id' => auth()->id(),
+                    'amount' => $total,
+                    'currency' => 'XAF',
+                    'status' => $result['success'] ? 'pending' : 'failed',
+                    'type' => 'payment',
+                    'gateway' => 'campay',
+                    'transaction_id' => $result['reference'],
+                    'metadata' => ['payment_method' => $validated['payment_method']],
+                ]);
 
-                    // Créer l'enregistrement de paiement
-                    \App\Models\Payment::create([
-                        'order_id' => $order->id,
-                        'user_id' => auth()->id(),
-                        'amount' => $total,
-                        'currency' => 'EUR',
-                        'status' => 'completed',
-                        'type' => 'payment',
-                        'gateway' => 'stripe',
-                        'transaction_id' => $paymentIntent->id,
-                        'metadata' => [
-                            'payment_intent_id' => $paymentIntent->id,
-                        ],
-                    ]);
-
-                } catch (\Exception $e) {
+                if (!$result['success']) {
                     DB::rollBack();
-                    return back()->with('error', 'Erreur de paiement: ' . $e->getMessage());
+                    return back()->withInput()->with('error', $result['message']);
                 }
             }
 
-            // Incrémenter l'utilisation du coupon
             if ($coupon) {
                 $coupon->incrementUsage();
             }
 
-            // Vider le panier
             session()->forget('cart');
             session()->forget('coupon_code');
             session()->forget('discount');
 
-            // Déclencher l'événement
             event(new NewOrderPlaced($order));
 
             DB::commit();
 
-            return redirect()
-                ->route('orders.show', $order)
-                ->with('success', 'Votre commande a été passée avec succès !');
+            $message = $validated['payment_method'] === 'cash'
+                ? 'Votre commande a été passée avec succès ! Vous paierez à la livraison.'
+                : 'Votre commande a été passée. Validez la demande de paiement reçue sur votre téléphone.';
+
+            return redirect()->route('orders.track', $order)->with('success', $message);
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            return back()
-                ->withInput()
-                ->with('error', 'Une erreur est survenue: ' . $e->getMessage());
+
+            return back()->withInput()->with('error', 'Une erreur est survenue: ' . $e->getMessage());
         }
     }
 
@@ -236,10 +204,10 @@ class CheckoutController extends Controller
 
         foreach ($cart as $item) {
             $product = Product::find($item['product_id']);
-            
+
             if ($product && $product->isAvailable()) {
                 $itemTotal = $product->price * $item['quantity'];
-                
+
                 if (!empty($item['options'])) {
                     foreach ($item['options'] as $option) {
                         $itemTotal += $option['price'] * $item['quantity'];

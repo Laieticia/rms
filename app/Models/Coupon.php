@@ -101,7 +101,7 @@ class Coupon extends Model
         if ($this->type === self::TYPE_PERCENTAGE) {
             return $this->value . '%';
         }
-        return number_format($this->value, 2, ',', ' ') . ' €';
+        return \App\Helpers\CameroonHelper::formatCurrency($this->value);
     }
 
     // Scopes

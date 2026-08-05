@@ -164,7 +164,7 @@ class Product extends Model
 
     public function getFormattedPriceAttribute(): string
     {
-        return number_format($this->price, 2, ',', ' ') . ' €';
+        return \App\Helpers\CameroonHelper::formatCurrency($this->price);
     }
 
     public function getDiscountPercentageAttribute(): ?int

@@ -12,6 +12,7 @@ use App\Events\ReservationCreated;
 use App\Listeners\OrderEventListener;
 use App\Listeners\InventoryAlertListener;
 use App\Listeners\DeliveryTrackingListener;
+use App\Listeners\ReservationListener;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider

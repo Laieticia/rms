@@ -95,7 +95,7 @@
                                         </span>
                                     </td>
                                     <td><span class="badge bg-secondary">{{ $order->items->sum('quantity') }}</span></td>
-                                    <td><strong>{{ number_format($order->total, 2) }} €</strong></td>
+                                    <td><strong>{{ \App\Helpers\CameroonHelper::formatCurrency($order->total) }}</strong></td>
                                     <td>
                                         <span class="badge bg-{{ $order->payment_status=='paid'?'success':'warning' }}">
                                             {{ $order->payment_status=='paid'?'Payé':'En attente' }}

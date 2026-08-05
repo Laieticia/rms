@@ -75,8 +75,8 @@
                 <!-- Statistiques -->
                 <div class="row g-3 mb-3">
                     <div class="col-md-3"><div class="card bg-primary text-white"><div class="card-body text-center py-3"><h4>{{$orderStats['total_orders']}}</h4><small>Commandes</small></div></div></div>
-                    <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center py-3"><h4>{{number_format($orderStats['total_spent'],0)}}€</h4><small>Dépensé</small></div></div></div>
-                    <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center py-3"><h4>{{number_format($orderStats['average_order'],2)}}€</h4><small>Panier moyen</small></div></div></div>
+                    <div class="col-md-3"><div class="card bg-success text-white"><div class="card-body text-center py-3"><h4>{{ \App\Helpers\CameroonHelper::formatCurrency($orderStats['total_spent']) }}</h4><small>Dépensé</small></div></div></div>
+                    <div class="col-md-3"><div class="card bg-info text-white"><div class="card-body text-center py-3"><h4>{{ \App\Helpers\CameroonHelper::formatCurrency($orderStats['average_order']) }}</h4><small>Panier moyen</small></div></div></div>
                     <div class="col-md-3"><div class="card bg-warning text-white"><div class="card-body text-center py-3"><h4>{{$loyaltyBalance}}</h4><small>Points fidélité</small></div></div></div>
                 </div>
 
@@ -91,7 +91,7 @@
                                     <br><small>{{ $order->restaurant->name ?? 'N/A' }}</small>
                                 </div>
                                 <span class="badge bg-{{ $order->status_color }}">{{ $order->status_label }}</span>
-                                <strong>{{ number_format($order->total, 2) }}€</strong>
+                                <strong>{{ \App\Helpers\CameroonHelper::formatCurrency($order->total) }}</strong>
                                 <small>{{ $order->created_at->format('d/m/Y') }}</small>
                                 <a href="{{ route('admin.orders.show', $order) }}" class="btn btn-sm btn-outline-primary"><i class="ri-eye-line mr-0"></i></a>
                             </div>

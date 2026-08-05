@@ -1,8 +1,27 @@
-@extends('layouts.app')
+@extends('layouts.storefront')
 
-@section('title', 'Notre Menu')
+@section('title', 'Menu — ' . $restaurant->name)
 
 @section('content')
+<div class="container mt-4 mb-3">
+    <div class="d-flex align-items-center gap-3 p-3 bg-white rounded-4 shadow-sm">
+        <img src="{{ $restaurant->logo_url ?? url('website/assets/img/about1.jpg') }}" alt="{{ $restaurant->name }}"
+             style="width:64px;height:64px;object-fit:cover;border-radius:14px;">
+        <div>
+            <h4 class="mb-1">{{ $restaurant->name }}</h4>
+            <div class="text-muted small">
+                <i class="bi bi-star-fill text-warning"></i> {{ $restaurant->average_rating }}
+                <span class="mx-2">·</span>
+                <i class="bi bi-geo-alt"></i> {{ $restaurant->city }}
+                <span class="mx-2">·</span>
+                <i class="bi bi-clock"></i> {{ $restaurant->estimated_delivery_time }} min
+            </div>
+        </div>
+        <a href="{{ route('restaurants.show', $restaurant) }}" class="btn btn-outline-secondary btn-sm ms-auto">
+            <i class="bi bi-shop"></i> Voir le restaurant
+        </a>
+    </div>
+</div>
 <div class="container">
     <div class="row">
         {{-- Sidebar Catégories --}}
@@ -12,12 +31,12 @@
                     <h5 class="mb-0">Catégories</h5>
                 </div>
                 <div class="list-group list-group-flush">
-                    <a href="{{ route('menu.index') }}" 
+                    <a href="{{ route('restaurant.menu', $restaurant) }}" 
                        class="list-group-item list-group-item-action {{ !request('category') ? 'active' : '' }}">
                         <i class="bi bi-grid"></i> Tout le menu
                     </a>
                     @foreach($categories as $category)
-                        <a href="{{ route('menu.index', ['category' => $category->slug]) }}" 
+                        <a href="{{ route('restaurant.menu', [$restaurant, 'category' => $category->slug]) }}" 
                            class="list-group-item list-group-item-action {{ request('category') == $category->slug ? 'active' : '' }}">
                             @if($category->image)
                                 <img src="{{ asset('storage/'.$category->image) }}" 
@@ -27,7 +46,7 @@
                             @endif
                             {{ $category->name }}
                             <span class="badge bg-secondary float-end">
-                                {{ $category->products_count }}
+                                {{ $category->available_products_count }}
                             </span>
                         </a>
                     @endforeach
@@ -71,10 +90,10 @@
                     
                     <div class="mb-3">
                         <label class="form-label">Prix</label>
-                        <input type="range" class="form-range" min="0" max="50" step="1" id="priceRange">
+                        <input type="range" class="form-range" min="0" max="15000" step="500" id="priceRange">
                         <div class="d-flex justify-content-between">
-                            <small>0€</small>
-                            <small>50€</small>
+                            <small>0 FCFA</small>
+                            <small>15 000 FCFA</small>
                         </div>
                     </div>
                     
@@ -155,7 +174,7 @@
                                     <div class="text-end">
                                         @if($product->is_on_sale)
                                             <span class="text-decoration-line-through text-muted small">
-                                                {{ number_format($product->compare_price, 2) }} €
+                                                {{ \App\Helpers\CameroonHelper::formatCurrency($product->compare_price) }}
                                             </span>
                                         @endif
                                         <span class="text-primary fw-bold ms-2">
@@ -198,7 +217,7 @@
                                         <i class="bi bi-eye"></i> Détails
                                     </button>
                                     
-                                    @if($product->isInStock())
+                                    @if($product->is_in_stock)
                                         <button class="btn btn-primary btn-sm add-to-cart" 
                                                 data-product-id="{{ $product->id }}">
                                             <i class="bi bi-cart-plus"></i> Ajouter
@@ -248,7 +267,7 @@
                                                 <strong>Prix :</strong>
                                                 @if($product->is_on_sale)
                                                     <span class="text-decoration-line-through me-2">
-                                                        {{ number_format($product->compare_price, 2) }} €
+                                                        {{ \App\Helpers\CameroonHelper::formatCurrency($product->compare_price) }}
                                                     </span>
                                                 @endif
                                                 <span class="h4 text-primary">
@@ -300,7 +319,7 @@
                                                                 <label class="form-check-label">
                                                                     {{ $item->name }}
                                                                     @if($item->price > 0)
-                                                                        (+{{ number_format($item->price, 2) }} €)
+                                                                        (+{{ \App\Helpers\CameroonHelper::formatCurrency($item->price) }})
                                                                     @endif
                                                                 </label>
                                                             </div>

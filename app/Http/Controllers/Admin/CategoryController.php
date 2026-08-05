@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\HasRestaurant;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -10,6 +11,8 @@ use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
+    use HasRestaurant;
+
     public function index()
     {
         $restaurantId = $this->getRestaurantId();
@@ -110,14 +113,5 @@ class CategoryController extends Controller
             ->with('success', 'Catégorie supprimée.');
     }
 
-    private function getRestaurantId(): int
-    {
-        $user = auth()->user();
-        
-        if ($user->isAdmin() && request()->filled('restaurant_id')) {
-            return request()->restaurant_id;
-        }
-
-        return $user->restaurants()->first()?->id ?? 1;
-    }
+    // getRestaurantId() est fourni par le trait HasRestaurant
 }

@@ -51,15 +51,15 @@
                         <div class="card-body">
                             <div class="row g-3">
                                 <div class="col-md-4">
-                                    <label class="form-label">Prix (€) *</label>
+                                    <label class="form-label">Prix (FCFA) *</label>
                                     <input type="number" step="0.01" name="price" class="form-control" value="{{ old('price') }}" required>
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Prix barré (€)</label>
+                                    <label class="form-label">Prix barré (FCFA)</label>
                                     <input type="number" step="0.01" name="compare_price" class="form-control" value="{{ old('compare_price') }}" placeholder="Pour promo">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">Prix de revient (€)</label>
+                                    <label class="form-label">Prix de revient (FCFA)</label>
                                     <input type="number" step="0.01" name="cost_price" class="form-control" value="{{ old('cost_price') }}">
                                 </div>
                                 <div class="col-md-4">

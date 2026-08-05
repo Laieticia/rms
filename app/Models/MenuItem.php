@@ -36,7 +36,7 @@ class MenuItem extends Model
     // Accesseurs
     public function getFormattedSpecialPriceAttribute(): ?string
     {
-        return $this->special_price ? number_format($this->special_price, 2, ',', ' ') . ' €' : null;
+        return $this->special_price ? \App\Helpers\CameroonHelper::formatCurrency($this->special_price) : null;
     }
 
     public function getDiscountPercentageAttribute(): ?float

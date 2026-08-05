@@ -18,6 +18,7 @@ class Reservation extends Model
 
     protected $casts = [
         'date' => 'date',
+        'time' => 'datetime:H:i',
     ];
 
     public function restaurant()

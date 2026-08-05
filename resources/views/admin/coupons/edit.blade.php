@@ -41,12 +41,12 @@
                                 </div>
                                 
                                 <div class="col-md-4">
-                                    <label class="form-label">Montant minimum (€)</label>
+                                    <label class="form-label">Montant minimum (FCFA)</label>
                                     <input type="number" step="0.01" name="min_order_amount" class="form-control" value="{{ old('min_order_amount', $coupon->min_order_amount) }}">
                                 </div>
                                 
                                 <div class="col-md-4">
-                                    <label class="form-label">Réduction max (€)</label>
+                                    <label class="form-label">Réduction max (FCFA)</label>
                                     <input type="number" step="0.01" name="max_discount_amount" class="form-control" value="{{ old('max_discount_amount', $coupon->max_discount_amount) }}">
                                 </div>
                                 

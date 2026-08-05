@@ -81,13 +81,13 @@
                                     </div>
                                     <div>
                                         <p class="mb-2">Revenu Total</p>
-                                        <h4>{{ number_format($todayStats['revenue'], 0) }} €</h4>
+                                        <h4>{{ \App\Helpers\CameroonHelper::formatCurrency($todayStats['revenue']) }}</h4>
                                     </div>
                                 </div>
                                 <div class="iq-progress-bar mt-2">
                                     <span class="bg-danger iq-progress progress-1" data-percent="70"></span>
                                 </div>
-                                <small class="text-muted">Panier moyen: {{ number_format($todayStats['average_order'], 2) }} €</small>
+                                <small class="text-muted">Panier moyen: {{ \App\Helpers\CameroonHelper::formatCurrency($todayStats['average_order']) }}</small>
                             </div>
                         </div>
                     </div>
@@ -194,7 +194,7 @@
                                             <div class="style-text text-left mt-3">
                                                 <h5 class="mb-1">{{ $product->name }}</h5>
                                                 <p class="mb-0 text-muted">{{ $product->total_sold ?? 0 }} vendus</p>
-                                                <p class="mb-0 fw-bold">{{ number_format($product->price, 2) }} €</p>
+                                                <p class="mb-0 fw-bold">{{ \App\Helpers\CameroonHelper::formatCurrency($product->price) }}</p>
                                             </div>
                                         </div>
                                     </div>
@@ -235,7 +235,7 @@
                                 <div class="style-text text-left ms-3">
                                     <h5 class="mb-2">{{ $product->name }}</h5>
                                     <p class="mb-2">Total vendus : <strong>{{ $product->total_sold ?? 0 }}</strong></p>
-                                    <p class="mb-0">Revenu : <strong>{{ number_format(($product->total_sold ?? 0) * $product->price, 2) }} €</strong></p>
+                                    <p class="mb-0">Revenu : <strong>{{ \App\Helpers\CameroonHelper::formatCurrency(($product->total_sold ?? 0) * $product->price) }}</strong></p>
                                 </div>
                             </div>
                         </div>
@@ -323,7 +323,7 @@
                                                     <span class="badge bg-primary">Livraison</span>
                                                 @endif
                                             </td>
-                                            <td><strong>{{ number_format($order->total, 2) }} €</strong></td>
+                                            <td><strong>{{ \App\Helpers\CameroonHelper::formatCurrency($order->total) }}</strong></td>
                                             <td>
                                                 <span class="badge bg-{{ $order->status_color }}">{{ $order->status_label }}</span>
                                             </td>
@@ -383,7 +383,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title text-white-50">Revenu</h6>
-                            <h2 class="mb-0">{{ number_format($todayStats['revenue'], 0) }} €</h2>
+                            <h2 class="mb-0">{{ \App\Helpers\CameroonHelper::formatCurrency($todayStats['revenue']) }}</h2>
                             <small>total des ventes</small>
                         </div>
                         <i class="bi bi-currency-euro display-4 opacity-50"></i>
@@ -411,7 +411,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-title text-white-50">Panier moyen</h6>
-                            <h2 class="mb-0">{{ number_format($todayStats['average_order'], 2) }} €</h2>
+                            <h2 class="mb-0">{{ \App\Helpers\CameroonHelper::formatCurrency($todayStats['average_order']) }}</h2>
                             <small>par commande</small>
                         </div>
                         <i class="bi bi-graph-up display-4 opacity-50"></i>
@@ -442,7 +442,7 @@
                                 <div>
                                     <strong>#{{ $order->order_number }}</strong>
                                     <br><small class="text-muted">{{ $order->user->full_name }}</small>
-                                    <br><small class="text-muted">{{ number_format($order->total, 2) }} €</small>
+                                    <br><small class="text-muted">{{ \App\Helpers\CameroonHelper::formatCurrency($order->total) }}</small>
                                 </div>
                             </div>
                             <div class="text-end">
@@ -487,12 +487,12 @@
                                      class="rounded me-2" width="40" height="40" style="object-fit:cover;" alt="">
                                 <div>
                                     <strong>{{ $product->name }}</strong>
-                                    <br><small class="text-muted">{{ $product->category->name ?? 'N/A' }} - {{ number_format($product->price, 2) }} €</small>
+                                    <br><small class="text-muted">{{ $product->category->name ?? 'N/A' }} - {{ \App\Helpers\CameroonHelper::formatCurrency($product->price) }}</small>
                                 </div>
                             </div>
                             <div class="text-end">
                                 <span class="badge bg-success">{{ $product->total_sold ?? 0 }} ventes</span>
-                                <br><small class="text-muted">{{ number_format(($product->total_sold ?? 0) * $product->price, 2) }} €</small>
+                                <br><small class="text-muted">{{ \App\Helpers\CameroonHelper::formatCurrency(($product->total_sold ?? 0) * $product->price) }}</small>
                             </div>
                         </div>
                     @empty
@@ -569,7 +569,7 @@ document.addEventListener('DOMContentLoaded', function() {
             data: {
                 labels: {!! json_encode($salesChart->pluck('date')) !!},
                 datasets: [{
-                    label: 'Revenus (€)',
+                    label: 'Revenus (FCFA)',
                     data: {!! json_encode($salesChart->pluck('revenue')) !!},
                     borderColor: '#0dcaf0',
                     backgroundColor: 'rgba(13, 202, 240, 0.1)',
@@ -600,7 +600,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        title: { display: true, text: '€' }
+                        title: { display: true, text: 'FCFA' }
                     },
                     y1: {
                         beginAtZero: true,

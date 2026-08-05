@@ -7,11 +7,6 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-    }
-
     public function track(Order $order)
     {
         // Vérifier que la commande appartient à l'utilisateur
@@ -51,6 +46,15 @@ class OrderController extends Controller
         return redirect()
             ->route('profile.orders')
             ->with('success', 'Commande annulée.');
+    }
+
+    public function reviewForm(Order $order)
+    {
+        if (!$order->canBeReviewedBy(auth()->user())) {
+            abort(403, 'Cette commande ne peut pas être notée.');
+        }
+
+        return view('reviews.create', compact('order'));
     }
 
     public function addReview(Request $request, Order $order)

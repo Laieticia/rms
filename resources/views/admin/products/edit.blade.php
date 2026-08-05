@@ -91,12 +91,12 @@
                                     <div class="card-body">
                                         <div class="row g-3">
                                             <div class="col-md-3">
-                                                <label class="">Prix (€) *</label>
+                                                <label class="">Prix (FCFA) *</label>
                                                 <input type="number" step="0.01" name="price" class="form-control" 
                                                     value="{{ old('price', $product->price) }}" required>
                                             </div>
                                             <div class="col-md-3">
-                                                <label class="">Prix barré (€)</label>
+                                                <label class="">Prix barré (FCFA)</label>
                                                 <input type="number" step="0.01" name="compare_price" class="form-control" 
                                                     value="{{ old('compare_price', $product->compare_price) }}">
                                             </div>

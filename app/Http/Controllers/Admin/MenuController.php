@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\HasRestaurant;
 use App\Models\Menu;
 use App\Models\MenuItem;
 use App\Models\Product;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
+    use HasRestaurant;
+
     public function index()
     {
         $restaurantId = $this->getRestaurantId();
@@ -130,14 +133,5 @@ class MenuController extends Controller
             ->with('success', 'Menu supprimé.');
     }
 
-    private function getRestaurantId(): int
-    {
-        $user = auth()->user();
-        
-        if ($user->isAdmin() && request()->filled('restaurant_id')) {
-            return request()->restaurant_id;
-        }
-
-        return $user->restaurants()->first()?->id ?? 1;
-    }
+    // getRestaurantId() est fourni par le trait HasRestaurant
 }

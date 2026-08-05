@@ -199,12 +199,12 @@ class Order extends Model
 
     public function getFormattedTotalAttribute(): string
     {
-        return number_format($this->total, 2, ',', ' ') . ' €';
+        return \App\Helpers\CameroonHelper::formatCurrency($this->total);
     }
 
     public function getFormattedSubtotalAttribute(): string
     {
-        return number_format($this->subtotal, 2, ',', ' ') . ' €';
+        return \App\Helpers\CameroonHelper::formatCurrency($this->subtotal);
     }
 
     public function getCanBeCancelledAttribute(): bool
@@ -355,16 +355,8 @@ class Order extends Model
             'comment' => $comment,
         ]);
         
-        // Événement
+        // Événement (déclenche notifications + points de fidélité via OrderEventListener)
         event(new \App\Events\OrderStatusChanged($this, $oldStatus, $status));
-        
-        // Notifications
-        $this->sendStatusNotification($status);
-        
-        // Points de fidélité
-        if ($status === self::STATUS_COMPLETED) {
-            $this->awardLoyaltyPoints();
-        }
     }
 
     public function assignDeliveryPerson(User $deliveryPerson): void
@@ -392,74 +384,29 @@ class Order extends Model
             && !$this->review()->exists();
     }
 
-    public function awardLoyaltyPoints(): void
-    {
-        $pointsEarned = floor($this->total);
-        
-        $this->user->addLoyaltyPoints(
-            $pointsEarned,
-            "Commande #{$this->order_number}",
-            $this
-        );
-    }
-
     public function processRefund(string $reason = ''): void
     {
         if ($this->payment_status !== 'paid') {
             throw new \Exception('La commande n\'a pas été payée');
         }
-        
-        // Logique de remboursement selon la passerelle de paiement
-        if ($this->payment_gateway === 'stripe') {
-            \Stripe\Stripe::setApiKey(config('services.stripe.secret'));
-            
-            try {
-                $refund = \Stripe\Refund::create([
-                    'payment_intent' => $this->payment_id,
-                    'reason' => 'requested_by_customer',
-                ]);
-                
-                $this->update([
-                    'payment_status' => 'refunded',
-                ]);
-                
-                $this->payment()->create([
-                    'type' => 'refund',
-                    'amount' => $this->total,
-                    'status' => 'completed',
-                    'gateway' => 'stripe',
-                    'transaction_id' => $refund->id,
-                    'metadata' => [
-                        'reason' => $reason,
-                        'original_payment_id' => $this->payment_id,
-                    ],
-                ]);
-            } catch (\Exception $e) {
-                throw new \Exception('Échec du remboursement : ' . $e->getMessage());
-            }
-        }
-    }
 
-    protected function sendStatusNotification(string $status): void
-    {
-        $notificationMap = [
-            self::STATUS_CONFIRMED => \App\Notifications\OrderConfirmed::class,
-            self::STATUS_PREPARING => \App\Notifications\OrderPreparing::class,
-            self::STATUS_READY => \App\Notifications\OrderReady::class,
-            self::STATUS_IN_DELIVERY => \App\Notifications\OrderInDelivery::class,
-            self::STATUS_DELIVERED => \App\Notifications\OrderDelivered::class,
-            self::STATUS_CANCELLED => \App\Notifications\OrderCancelled::class,
-        ];
-        
-        if (isset($notificationMap[$status])) {
-            $this->user->notify(new $notificationMap[$status]($this));
-            
-            // SMS pour les statuts importants
-            if (in_array($status, [self::STATUS_READY, self::STATUS_IN_DELIVERY]) 
-                && $this->user->phone) {
-                $this->user->notify(new \App\Notifications\OrderStatusSMS($this));
-            }
-        }
+        // Les paiements Mobile Money (Campay/MTN/Orange) ne proposent pas de
+        // remboursement automatisé via API : le remboursement doit être
+        // effectué manuellement par un administrateur vers le numéro du
+        // client, puis confirmé ici pour mettre à jour la commande.
+        $this->update(['payment_status' => 'refunded']);
+
+        $this->payment()->create([
+            'type' => 'refund',
+            'amount' => $this->total,
+            'currency' => 'XAF',
+            'status' => 'completed',
+            'gateway' => 'manual',
+            'metadata' => [
+                'reason' => $reason,
+                'note' => 'Remboursement manuel à effectuer vers le numéro Mobile Money du client.',
+            ],
+        ]);
     }
 
 }

@@ -2,6 +2,9 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
+
 class CameroonianPaymentService
 {
     /**
@@ -150,5 +153,95 @@ class CameroonianPaymentService
         }
         
         return round($amount * $rates[$targetCurrency], 2);
+    }
+
+    /**
+     * Récupère un jeton d'accès auprès de Campay (OAuth client credentials).
+     */
+    protected static function getCampayToken(): ?string
+    {
+        $response = Http::asForm()->post(config('services.campay.base_url') . '/token/', [
+            'username' => config('services.campay.app_username'),
+            'password' => config('services.campay.app_password'),
+        ]);
+
+        if (!$response->successful()) {
+            Log::error('Échec authentification Campay : ' . $response->body());
+            return null;
+        }
+
+        return $response->json('token');
+    }
+
+    /**
+     * Lance une collecte Mobile Money (MTN/Orange) via Campay.
+     * En local (PAYMENT_DRIVER=log dans .env), la transaction est simulée et journalisée.
+     *
+     * @return array{success: bool, reference: ?string, message: ?string}
+     */
+    public static function collectMobileMoney(string $phone, float $amount, string $orderNumber): array
+    {
+        $phoneValidation = PhoneValidationService::validate($phone);
+        if (!$phoneValidation['valid']) {
+            return ['success' => false, 'reference' => null, 'message' => $phoneValidation['error']];
+        }
+
+        $reference = self::generateReference($orderNumber);
+        $driver = config('services.campay.driver', 'log');
+
+        if ($driver === 'log') {
+            Log::info("[PAIEMENT SIMULÉ] {$reference} : " . self::formatAmount($amount) . " depuis {$phoneValidation['formatted']}");
+            return ['success' => true, 'reference' => $reference, 'message' => 'Paiement simulé (mode développement).'];
+        }
+
+        try {
+            $token = self::getCampayToken();
+            if (!$token) {
+                return ['success' => false, 'reference' => null, 'message' => 'Impossible de contacter la passerelle de paiement.'];
+            }
+
+            $response = Http::withToken($token)->post(config('services.campay.base_url') . '/collect/', [
+                'amount' => (string) round($amount),
+                'currency' => 'XAF',
+                'from' => PhoneValidationService::cleanPhone($phone),
+                'description' => "Commande {$orderNumber}",
+                'external_reference' => $reference,
+            ]);
+
+            if (!$response->successful()) {
+                Log::error("Échec collecte Campay pour {$orderNumber} : " . $response->body());
+                return ['success' => false, 'reference' => null, 'message' => "La demande de paiement n'a pas pu être envoyée."];
+            }
+
+            return [
+                'success' => true,
+                'reference' => $response->json('reference') ?? $reference,
+                'message' => 'Une demande de paiement a été envoyée sur votre téléphone. Validez-la pour finaliser la commande.',
+            ];
+        } catch (\Throwable $e) {
+            Log::error("Erreur Campay pour {$orderNumber} : " . $e->getMessage());
+            return ['success' => false, 'reference' => null, 'message' => 'Une erreur est survenue avec la passerelle de paiement.'];
+        }
+    }
+
+    /**
+     * Vérifie le statut d'une transaction Campay (utilisé par le webhook ou en polling).
+     */
+    public static function checkTransactionStatus(string $reference): string
+    {
+        if (config('services.campay.driver', 'log') === 'log') {
+            return 'SUCCESSFUL';
+        }
+
+        $token = self::getCampayToken();
+        if (!$token) {
+            return 'PENDING';
+        }
+
+        $response = Http::withToken($token)->post(config('services.campay.base_url') . '/transaction/check/', [
+            'reference' => $reference,
+        ]);
+
+        return $response->successful() ? ($response->json('status') ?? 'PENDING') : 'PENDING';
     }
 }

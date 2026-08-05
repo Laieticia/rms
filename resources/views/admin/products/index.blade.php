@@ -120,7 +120,7 @@
                                                 <td>{{ $product->category->name ?? 'N/A' }}</td>
                                                 <td>
                                                     @if($product->is_on_sale)
-                                                        <small class="text-decoration-line-through text-muted">{{ number_format($product->compare_price, 2) }} €</small>
+                                                        <small class="text-decoration-line-through text-muted">{{ \App\Helpers\CameroonHelper::formatCurrency($product->compare_price) }}</small>
                                                     @endif
                                                     <span class="fw-bold">{{ $product->formatted_price }}</span>
                                                 </td>

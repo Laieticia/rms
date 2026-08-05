@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\HasRestaurant;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Category;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 
 class CouponController extends Controller
 {
+    use HasRestaurant;
+
     public function index()
     {
         $restaurantId = $this->getRestaurantId();
@@ -126,14 +129,5 @@ class CouponController extends Controller
             ->with('success', 'Coupon supprimé.');
     }
 
-    private function getRestaurantId(): int
-    {
-        $user = auth()->user();
-        
-        if ($user->isAdmin() && request()->filled('restaurant_id')) {
-            return request()->restaurant_id;
-        }
-
-        return $user->restaurants()->first()?->id ?? 1;
-    }
+    // getRestaurantId() est fourni par le trait HasRestaurant
 }

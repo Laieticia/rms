@@ -171,7 +171,8 @@ class CartController extends Controller
         $subtotal = $this->calculateCartTotal($cart);
 
         if ($subtotal < $coupon->min_order_amount) {
-            return back()->with('error', "Le montant minimum de commande est de {$coupon->min_order_amount}€ pour utiliser ce code.");
+            $formattedMin = \App\Helpers\CameroonHelper::formatCurrency($coupon->min_order_amount);
+            return back()->with('error', "Le montant minimum de commande est de {$formattedMin} pour utiliser ce code.");
         }
 
         if (!$coupon->isValidForUser(auth()->user())) {
