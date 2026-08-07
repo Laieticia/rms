@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\ReservationController as AdminReservationController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
@@ -47,7 +48,7 @@ Route::post('/cart/coupon/remove', [CartController::class, 'removeCoupon'])->nam
 
 require __DIR__.'/auth.php';
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'process'])->name('checkout.process');
@@ -89,12 +90,19 @@ Route::middleware(['auth', 'admin.access'])
     ->group(function () {
         
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Notifications
+        Route::get('/notifications', [AdminNotificationController::class, 'index'])->name('notifications.index');
+        Route::post('/notifications/{notification}/read', [AdminNotificationController::class, 'markRead'])->name('notifications.read');
+        Route::post('/notifications/read-all', [AdminNotificationController::class, 'markAllRead'])->name('notifications.read-all');
         
         // Produits
         Route::post('/products/{product}/images', [ProductController::class, 'uploadImages'])
             ->name('products.images.store');
         Route::delete('/products/images/{image}', [ProductController::class, 'deleteImage'])
             ->name('products.images.destroy');
+        Route::post('/products/{product}/stock', [ProductController::class, 'updateStock'])
+            ->name('products.stock');
         Route::resource('products', ProductController::class);
             
         // Catégories
@@ -160,3 +168,13 @@ Route::middleware(['auth', 'admin.access'])
 
     });
 
+// Espace Livreur
+Route::middleware(['auth', 'role:delivery_person'])
+    ->prefix('delivery')
+    ->name('delivery.')
+    ->group(function () {
+        Route::get('/', [\App\Http\Controllers\DeliveryController::class, 'index'])->name('dashboard');
+        Route::get('/orders/{order}', [\App\Http\Controllers\DeliveryController::class, 'show'])->name('show');
+        Route::post('/orders/{order}/status', [\App\Http\Controllers\DeliveryController::class, 'updateStatus'])->name('status');
+        Route::post('/orders/{order}/location', [\App\Http\Controllers\DeliveryController::class, 'updateLocation'])->name('location');
+    });

@@ -44,6 +44,12 @@
                     <i class="bi bi-geo-alt"></i> Suivre ma livraison
                 </a>
             @endif
+
+            @if($order->canBeReviewedBy(auth()->user()))
+                <a href="{{ route('orders.review.create', $order) }}" class="btn btn-outline-warning w-100 py-3 mb-4">
+                    <i class="bi bi-star"></i> Laisser un avis sur cette commande
+                </a>
+            @endif
         </div>
 
         <div class="col-lg-5">

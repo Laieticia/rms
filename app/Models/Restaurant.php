@@ -231,33 +231,41 @@ class Restaurant extends Model
             return false;
         }
 
-        return $this->deliveryZones()
-            ->where('is_active', true)
-            ->whereRaw("ST_Contains(ST_GeomFromText(CONCAT('POLYGON((', coordinates, '))')), POINT(?, ?))", 
-                [$longitude, $latitude])
-            ->exists();
+        $zones = $this->deliveryZones()->where('is_active', true)->get();
+        
+        foreach ($zones as $zone) {
+            if ($zone->containsPoint($latitude, $longitude)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     public function getDeliveryFee(float $latitude, float $longitude): float
     {
-        $zone = $this->deliveryZones()
-            ->where('is_active', true)
-            ->whereRaw("ST_Contains(ST_GeomFromText(CONCAT('POLYGON((', coordinates, '))')), POINT(?, ?))", 
-                [$longitude, $latitude])
-            ->first();
+        $zones = $this->deliveryZones()->where('is_active', true)->get();
+        
+        foreach ($zones as $zone) {
+            if ($zone->containsPoint($latitude, $longitude)) {
+                return $zone->delivery_fee;
+            }
+        }
 
-        return $zone ? $zone->delivery_fee : $this->delivery_fee;
+        return $this->delivery_fee;
     }
 
     public function getEstimatedDeliveryTime(float $latitude, float $longitude): int
     {
-        $zone = $this->deliveryZones()
-            ->where('is_active', true)
-            ->whereRaw("ST_Contains(ST_GeomFromText(CONCAT('POLYGON((', coordinates, '))')), POINT(?, ?))", 
-                [$longitude, $latitude])
-            ->first();
+        $zones = $this->deliveryZones()->where('is_active', true)->get();
+        
+        foreach ($zones as $zone) {
+            if ($zone->containsPoint($latitude, $longitude)) {
+                return $zone->estimated_time;
+            }
+        }
 
-        return $zone ? $zone->estimated_time : $this->estimated_delivery_time;
+        return $this->estimated_delivery_time;
     }
 
     public function getTodayStats(): array

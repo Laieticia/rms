@@ -154,6 +154,23 @@ class Product extends Model
     }
 
     // Accesseurs
+    public function getAllergensAttribute($value)
+    {
+        if (is_array($value)) {
+            return $value;
+        }
+        
+        if (is_string($value)) {
+            $decoded = json_decode($value, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return is_array($decoded) ? $decoded : (array) $decoded;
+            }
+            return array_filter(array_map('trim', explode(',', $value)));
+        }
+
+        return (array) $value;
+    }
+
     public function getPrimaryImageUrlAttribute(): ?string
     {
         $primaryImage = $this->images->where('is_primary', true)->first() 

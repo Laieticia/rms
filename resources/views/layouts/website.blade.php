@@ -29,7 +29,7 @@
          <div class="container">
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                <div class="top-contact d-flex flex-wrap">
-                  <span><i class="fas fa-phone-alt"></i>+1 (800) 123-4567</span>
+                  <span><i class="fas fa-phone-alt"></i>+237 655585802</span>
                   <span><i class="fas fa-envelope"></i>hello@sarabfood.com</span>
                   <span><i class="fas fa-map-marker-alt"></i>42 Flavor Street, NY</span>
                </div>

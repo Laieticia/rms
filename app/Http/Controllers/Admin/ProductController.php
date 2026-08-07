@@ -32,14 +32,14 @@ class ProductController extends Controller
             ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId));
 
         // Filtres
-        if ($request->filled('category')) {
-            $query->where('category_id', $request->category);
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
         }
 
         if ($request->filled('status')) {
             match($request->status) {
-                'active' => $query->available(),
-                'inactive' => $query->where('is_available', false),
+                'available' => $query->available(),
+                'unavailable' => $query->where('is_available', false),
                 'out_of_stock' => $query->outOfStock(),
                 'low_stock' => $query->lowStock(),
                 default => null,
@@ -112,12 +112,12 @@ class ProductController extends Controller
                 'restaurant_id' => $this->getRestaurantId(),
                 'category_id' => $validated['category_id'],
                 'name' => $validated['name'],
-                'description' => $validated['description'],
+                'description' => $validated['description'] ?? null,
                 'price' => $validated['price'],
-                'compare_price' => $validated['compare_price'],
-                'cost_price' => $validated['cost_price'],
+                'compare_price' => $validated['compare_price'] ?? null,
+                'cost_price' => $validated['cost_price'] ?? null,
                 'preparation_time' => $validated['preparation_time'],
-                'calories' => $validated['calories'],
+                'calories' => $validated['calories'] ?? null,
                 'is_vegetarian' => $request->boolean('is_vegetarian'),
                 'is_vegan' => $request->boolean('is_vegan'),
                 'is_gluten_free' => $request->boolean('is_gluten_free'),
@@ -125,7 +125,7 @@ class ProductController extends Controller
                 'allergens' => $validated['allergens'] ?? [],
                 'track_inventory' => $request->boolean('track_inventory'),
                 'stock_quantity' => $validated['stock_quantity'] ?? 0,
-                'low_stock_threshold' => $validated['low_stock_threshold'],
+                'low_stock_threshold' => $validated['low_stock_threshold'] ?? 10,
                 'is_featured' => $request->boolean('is_featured'),
                 'is_available' => $request->boolean('is_available'),
             ]);
@@ -280,7 +280,7 @@ class ProductController extends Controller
     public function updateStock(Request $request, Product $product)
     {
         $validated = $request->validate([
-            'quantity' => 'required|integer',
+            'quantity' => 'required|integer|min:0',
             'type' => 'required|in:add,remove,set',
             'reason' => 'nullable|string',
         ]);
@@ -291,11 +291,15 @@ class ProductController extends Controller
             'set' => $product->setStock($validated['quantity']),
         };
 
-        return response()->json([
-            'success' => true,
-            'new_quantity' => $product->stock_quantity,
-            'message' => 'Stock mis à jour avec succès.',
-        ]);
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'new_quantity' => $product->stock_quantity,
+                'message' => 'Stock mis à jour avec succès.',
+            ]);
+        }
+
+        return back()->with('success', 'Stock mis à jour avec succès.');
     }
 
     public function uploadImages(Request $request, Product $product)
@@ -304,14 +308,20 @@ class ProductController extends Controller
             'images.*' => 'required|image|max:2048',
         ]);
 
+        // La nouvelle image uploadée devient l'image principale (celle affichée
+        // dans la liste des produits). Avant ce correctif, si le produit avait
+        // déjà une photo, la nouvelle image était ajoutée en secondaire et
+        // n'était donc jamais visible dans la liste après "modification".
+        $product->images()->update(['is_primary' => false]);
+
         foreach ($request->file('images') as $index => $image) {
             $path = $image->store('products', 'public');
-            
+
             ProductImage::create([
                 'product_id' => $product->id,
                 'path' => $path,
                 'sort_order' => $product->images()->count() + $index,
-                'is_primary' => !$product->images()->exists() && $index === 0,
+                'is_primary' => $index === 0,
             ]);
         }
 
@@ -320,8 +330,18 @@ class ProductController extends Controller
 
     public function deleteImage(ProductImage $image)
     {
+        $wasPrimary = $image->is_primary;
+        $product = $image->product;
+
         Storage::disk('public')->delete($image->path);
         $image->delete();
+
+        if ($wasPrimary) {
+            $newPrimary = $product->images()->orderBy('sort_order')->first();
+            if ($newPrimary) {
+                $newPrimary->update(['is_primary' => true]);
+            }
+        }
 
         return back()->with('success', 'Image supprimée avec succès.');
     }

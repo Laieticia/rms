@@ -45,7 +45,12 @@ class DeliveryZone extends Model
     public function containsPoint(float $latitude, float $longitude): bool
     {
         // Algorithme de point dans un polygone
-        $vertices = $this->coordinates;
+        $vertices = is_string($this->coordinates) ? json_decode($this->coordinates, true) : $this->coordinates;
+        
+        if (!is_array($vertices) || empty($vertices)) {
+            return false;
+        }
+
         $vertexCount = count($vertices);
         $inside = false;
 

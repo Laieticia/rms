@@ -22,8 +22,8 @@
     <div class="topbar d-none d-lg-block">
         <div class="container d-flex justify-content-between align-items-center">
             <div class="d-flex gap-4">
-                <span><i class="fas fa-phone-alt me-2"></i>+237 6XX XXX XXX</span>
-                <span><i class="fas fa-envelope me-2"></i>contact@rms.cm</span>
+                <span><i class="fas fa-phone-alt me-2"></i>+237 655585802</span>
+                <span><i class="fas fa-envelope me-2"></i>contact@montroyal.cm</span>
                 <span><i class="fas fa-map-marker-alt me-2"></i>Bafoussam, Région de l'Ouest, Cameroun</span>
             </div>
             <div class="d-flex gap-3">
@@ -39,7 +39,7 @@
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
                 <div class="blogo"><i class="fas fa-utensils bico"></i>
-                    <span class="bname">RMS<em class="bsub">Cameroun</em></span>
+                    <span class="bname">MontRoyal<em class="bsub"></em></span>
                 </div>
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
@@ -49,11 +49,13 @@
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Accueil</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('restaurants.index') }}">Restaurants</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#comment-ca-marche">Comment ça marche</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#devenir-partenaire">Devenir partenaire</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#contact-section">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#contact-section">Contact</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
+                    <form action="{{ route('search') }}" method="GET" class="d-none d-md-flex">
+                        <input type="text" name="q" class="form-control form-control-sm" placeholder="Rechercher..." value="{{ request('q') }}" style="border-radius:50px 0 0 50px;">
+                        <button class="btn btn-sm" style="background:var(--primary);color:#fff;border-radius:0 50px 50px 0;" type="submit"><i class="fas fa-search"></i></button>
+                    </form>
                     <a href="{{ route('cart.index') }}" class="position-relative" style="font-size:20px;color:inherit;">
                         <i class="fas fa-shopping-cart"></i>
                         @if(session('cart') && count(session('cart')) > 0)
@@ -80,9 +82,9 @@
                             </ul>
                         </div>
                     @else
-                        <button class="nav-link nav-cta" data-bs-toggle="modal" data-bs-target="#loginModal" style="background: var(--primary); color: #fff; padding: 10px 25px; border-radius: 50px; border: none;">
+                        <a href="{{ route('login') }}" class="nav-link nav-cta" style="background: var(--primary); color: #fff; padding: 10px 25px; border-radius: 50px; border: none;">
                             Connexion
-                        </button>
+                        </a>
                     @endauth
                 </div>
             </div>

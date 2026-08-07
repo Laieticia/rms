@@ -27,7 +27,7 @@
         {{-- Sidebar Catégories --}}
         <div class="col-md-3">
             <div class="card shadow-sm sticky-top" style="top: 20px;">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header text-white">
                     <h5 class="mb-0">Catégories</h5>
                 </div>
                 <div class="list-group list-group-flush">
@@ -218,8 +218,9 @@
                                     </button>
                                     
                                     @if($product->is_in_stock)
-                                        <button class="btn btn-primary btn-sm add-to-cart" 
-                                                data-product-id="{{ $product->id }}">
+                                        <button class="btn btn-sm add-to-cart" 
+                                                data-product-id="{{ $product->id }}"
+                                                style="background:var(--primary);color:#fff;border-radius:50px;">
                                             <i class="bi bi-cart-plus"></i> Ajouter
                                         </button>
                                     @else
@@ -315,7 +316,8 @@
                                                                        type="{{ $option->type == 'single' ? 'radio' : 'checkbox' }}"
                                                                        name="options[{{ $option->id }}][]"
                                                                        value="{{ $item->id }}"
-                                                                       data-price="{{ $item->price }}">
+                                                                       data-price="{{ $item->price }}"
+                                                                       data-name="{{ $item->name }}">
                                                                 <label class="form-check-label">
                                                                     {{ $item->name }}
                                                                     @if($item->price > 0)
@@ -415,11 +417,14 @@ $(document).ready(function() {
                 _token: '{{ csrf_token() }}'
             },
             success: function(response) {
-                updateCartCount(response.cartCount);
+                updateCartCount(response.cart_count);
                 showToast('Produit ajouté au panier !', 'success');
             },
             error: function(xhr) {
-                showToast('Erreur lors de l\'ajout au panier', 'error');
+                const message = xhr.responseJSON && xhr.responseJSON.message
+                    ? xhr.responseJSON.message
+                    : 'Erreur lors de l\'ajout au panier';
+                showToast(message, 'error');
             }
         });
     }
@@ -430,7 +435,8 @@ $(document).ready(function() {
             options.push({
                 option_id: $(this).attr('name').match(/\d+/)[0],
                 item_id: $(this).val(),
-                price: $(this).data('price')
+                price: $(this).data('price'),
+                name: $(this).data('name')
             });
         });
         return options;

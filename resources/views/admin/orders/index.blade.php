@@ -29,7 +29,7 @@
                     <div class="col-md-2">
                         <select name="status" class="form-control">
                             <option value="">Tous statuts</option>
-                            @foreach(['pending'=>'En attente','confirmed'=>'Confirmée','preparing'=>'En préparation','ready'=>'Prête','in_delivery'=>'En livraison','delivered'=>'Livrée','cancelled'=>'Annulée'] as $val => $label)
+                            @foreach(['pending'=>'En attente','confirmed'=>'Confirmée','preparing'=>'En préparation','ready'=>'Prête','in_delivery'=>'En livraison','delivered'=>'Livrée','completed'=>'Terminée','cancelled'=>'Annulée'] as $val => $label)
                                 <option value="{{ $val }}" {{ request('status')==$val?'selected':'' }}>{{ $label }}</option>
                             @endforeach
                         </select>
@@ -43,12 +43,15 @@
                         </select>
                     </div>
                     <div class="col-md-2">
-                        <input type="date" name="date" class="form-control" value="{{ request('date') }}">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="text" name="search" class="form-control" placeholder="N° commande ou client..." value="{{ request('search') }}">
+                        <input type="date" name="date_from" class="form-control" placeholder="Du" value="{{ request('date_from') }}">
                     </div>
                     <div class="col-md-2">
+                        <input type="date" name="date_to" class="form-control" placeholder="Au" value="{{ request('date_to') }}">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" name="search" class="form-control" placeholder="N° commande ou client..." value="{{ request('search') }}">
+                    </div>
+                    <div class="col-md-1">
                         <button class="btn btn-primary w-100">Filtrer</button>
                     </div>
                     <div class="col-md-1">

@@ -146,8 +146,8 @@
                                                 </td>
                                                 <td>
                                                     <div class="d-flex align-items-center list-action">
-                                                        <button type="button" class="badge badge-info mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Stock" data-bs-target="#stockModal{{ $product->id }}">
-                                                            <i class="ri-star-fill mr-2"></i>
+                                                        <button type="button" class="badge badge-info mr-2" data-toggle="modal" data-target="#stockModal{{ $product->id }}" title="Gérer le stock">
+                                                            <i class="ri-archive-line mr-0"></i>
                                                         </button>
                                                         <a class="badge bg-success mr-2" href="{{ route('admin.products.edit', $product) }}" aria-label="Modifier">
                                                             <i class="ri-pencil-line mr-0"></i>
@@ -181,6 +181,45 @@
         </div>
     </div>
 </div>
+
+@foreach($products as $product)
+    <div class="modal fade" id="stockModal{{ $product->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form action="{{ route('admin.products.stock', $product) }}" method="POST">
+                    @csrf
+                    <div class="modal-header">
+                        <h5 class="modal-title">Gérer le stock — {{ $product->name }}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">Stock actuel : <strong>{{ $product->stock_quantity }}</strong></p>
+                        <div class="mb-3">
+                            <label class="form-label">Action</label>
+                            <select name="type" class="form-control" required>
+                                <option value="add">Ajouter au stock</option>
+                                <option value="remove">Retirer du stock</option>
+                                <option value="set">Définir la quantité exacte</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantité</label>
+                            <input type="number" name="quantity" class="form-control" min="0" required>
+                        </div>
+                        <div class="mb-0">
+                            <label class="form-label">Raison (optionnel)</label>
+                            <input type="text" name="reason" class="form-control" placeholder="Ex: réapprovisionnement, perte, inventaire...">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endforeach
 @endsection
 
 @push('scripts')

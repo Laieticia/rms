@@ -1,68 +1,87 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('register') }}">
-        @csrf
+@extends('layouts.storefront')
 
-        <!-- First Name -->
-        <div>
-            <x-input-label for="first_name" :value="__('Prénom')" />
-            <x-text-input id="first_name" class="block mt-1 w-full" type="text" name="first_name" :value="old('first_name')" required autofocus />
-            <x-input-error :messages="$errors->get('first_name')" class="mt-2" />
+@section('title', 'Créer un compte')
+
+@section('content')
+<div class="container" style="padding-top:140px; padding-bottom:80px; max-width:560px;">
+    <div class="text-center mb-4">
+        <div style="width:70px;height:70px;background:rgba(232,40,26,0.1);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;margin-bottom:15px;">
+            <i class="fas fa-user-plus" style="font-size:30px;color:var(--primary);"></i>
         </div>
+        <h4>Créer votre compte RMS</h4>
+    </div>
 
-        <!-- Last Name -->
-        <div class="mt-4">
-            <x-input-label for="last_name" :value="__('Nom')" />
-            <x-text-input id="last_name" class="block mt-1 w-full" type="text" name="last_name" :value="old('last_name')" required />
-            <x-input-error :messages="$errors->get('last_name')" class="mt-2" />
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
+    @endif
 
-        <!-- Email Address -->
-        <div class="mt-4">
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+    <div class="card shadow-sm border-0" style="border-radius:20px;">
+        <div class="card-body p-4">
+            <form method="POST" action="{{ route('register') }}">
+                @csrf
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="first_name" class="form-label">Prénom</label>
+                        <input id="first_name" type="text" name="first_name" value="{{ old('first_name') }}" required autofocus
+                               class="form-control form-control-lg @error('first_name') is-invalid @enderror" style="border-radius:12px;">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="last_name" class="form-label">Nom</label>
+                        <input id="last_name" type="text" name="last_name" value="{{ old('last_name') }}" required
+                               class="form-control form-control-lg @error('last_name') is-invalid @enderror" style="border-radius:12px;">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="email" class="form-label">Adresse email</label>
+                    <input id="email" type="email" name="email" value="{{ old('email') }}" required
+                           class="form-control form-control-lg @error('email') is-invalid @enderror" style="border-radius:12px;">
+                </div>
+
+                <div class="mb-3">
+                    <label for="phone" class="form-label">Téléphone</label>
+                    <input id="phone" type="tel" name="phone" value="{{ old('phone') }}" required placeholder="6XXXXXXXX"
+                           class="form-control form-control-lg @error('phone') is-invalid @enderror" style="border-radius:12px;">
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label for="password" class="form-label">Mot de passe</label>
+                        <input id="password" type="password" name="password" required autocomplete="new-password"
+                               class="form-control form-control-lg @error('password') is-invalid @enderror" style="border-radius:12px;">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="password_confirmation" class="form-label">Confirmer</label>
+                        <input id="password_confirmation" type="password" name="password_confirmation" required
+                               class="form-control form-control-lg" style="border-radius:12px;">
+                    </div>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input class="form-check-input @error('terms') is-invalid @enderror" type="checkbox" name="terms" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        J'accepte les conditions générales d'utilisation
+                    </label>
+                </div>
+
+                <button type="submit" class="btn-red w-100 justify-content-center" style="padding:12px;">
+                    <i class="fas fa-user-plus me-2"></i> Créer mon compte
+                </button>
+            </form>
+
+            <div class="text-center mt-4">
+                <p class="mb-0">Déjà inscrit ?
+                    <a href="{{ route('login') }}" style="color:var(--primary);font-weight:600;">Connectez-vous</a>
+                </p>
+            </div>
         </div>
-
-        <!-- Phone -->
-        <div class="mt-4">
-            <x-input-label for="phone" :value="__('Téléphone')" />
-            <x-text-input id="phone" class="block mt-1 w-full" type="tel" name="phone" :value="old('phone')" required />
-            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Mot de passe')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirmer le mot de passe')" />
-            <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <!-- Terms -->
-        <div class="mt-4">
-            <label for="terms" class="inline-flex items-center">
-                <input id="terms" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="terms" required>
-                <span class="ms-2 text-sm text-gray-600">
-                    {{ __("J'accepte les conditions générales d'utilisation") }}
-                </span>
-            </label>
-            <x-input-error :messages="$errors->get('terms')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
-                {{ __('Déjà inscrit ?') }}
-            </a>
-
-            <x-primary-button class="ms-4">
-                {{ __('S\'inscrire') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+    </div>
+</div>
+@endsection

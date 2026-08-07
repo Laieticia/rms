@@ -194,11 +194,24 @@ class DashboardController extends Controller
 
     protected function getOrderTypeDistribution($restaurantId, array $dateRange)
     {
-        return Order::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
-            ->whereBetween('created_at', $dateRange)
+        // La période du tableau de bord (souvent "aujourd'hui") est trop
+        // restrictive pour ce graphique : s'il n'y a pas eu de commande
+        // aujourd'hui, le graphique était vide en permanence. On élargit
+        // à 30 jours, puis, si toujours vide, sur tout l'historique.
+        $distribution = Order::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+            ->where('created_at', '>=', Carbon::now()->subDays(30))
             ->select('type', DB::raw('COUNT(*) as count'))
             ->groupBy('type')
             ->get();
+
+        if ($distribution->isEmpty()) {
+            $distribution = Order::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+                ->select('type', DB::raw('COUNT(*) as count'))
+                ->groupBy('type')
+                ->get();
+        }
+
+        return $distribution;
     }
 
     protected function getRecentReviews($restaurantId)

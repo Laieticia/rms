@@ -107,8 +107,9 @@ class CheckoutController extends Controller
                 'delivery_fee' => $deliveryFee,
                 'discount_amount' => $discount,
                 'total' => $total,
-                'payment_method' => $validated['payment_method'],
-                'payment_status' => 'pending',
+                'payment_method' => $validated['payment_method'] === 'cash' ? 'cash' : 'wallet',
+                'payment_status' => $validated['payment_method'] === 'cash' ? 'pending' : 'paid',
+                'payment_gateway' => $validated['payment_method'],
                 'delivery_address' => $address->street_address,
                 'delivery_city' => $address->city,
                 'delivery_postal_code' => $address->postal_code,
@@ -145,32 +146,21 @@ class CheckoutController extends Controller
                 $item['product']->incrementOrders($item['quantity']);
             }
 
-            // Paiement
+            // Paiement simulé pour tests
             if ($validated['payment_method'] === 'cash') {
                 $order->update(['payment_status' => 'pending']);
             } else {
-                $result = CameroonianPaymentService::collectMobileMoney(
-                    $validated['payment_phone'],
-                    (float) $total,
-                    $order->order_number
-                );
-
                 Payment::create([
                     'order_id' => $order->id,
                     'user_id' => auth()->id(),
                     'amount' => $total,
                     'currency' => 'XAF',
-                    'status' => $result['success'] ? 'pending' : 'failed',
+                    'status' => 'completed',
                     'type' => 'payment',
-                    'gateway' => 'campay',
-                    'transaction_id' => $result['reference'],
+                    'gateway' => $validated['payment_method'],
+                    'transaction_id' => 'SIM-'.time(),
                     'metadata' => ['payment_method' => $validated['payment_method']],
                 ]);
-
-                if (!$result['success']) {
-                    DB::rollBack();
-                    return back()->withInput()->with('error', $result['message']);
-                }
             }
 
             if ($coupon) {

@@ -24,9 +24,9 @@ trait HasRestaurant
             }
         }
 
-        // Pour les admins sans restaurant spécifié, retourner le premier restaurant
+        // Pour les admins sans restaurant spécifié, retourner null pour tout voir
         if ($user->isAdmin()) {
-            return Restaurant::first()?->id;
+            return null;
         }
 
         // Pour les autres utilisateurs, retourner leur restaurant assigné

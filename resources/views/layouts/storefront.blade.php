@@ -18,11 +18,11 @@
 <body style="font-family:'Poppins',sans-serif;background:#faf7f2;">
 
     <!-- NAV -->
-    <nav class="navbar navbar-expand-lg" id="nav">
+     <nav class="navbar navbar-expand-lg" id="nav">
         <div class="container">
             <a class="navbar-brand" href="{{ route('home') }}">
                 <div class="blogo"><i class="fas fa-utensils bico"></i>
-                    <span class="bname">RMS<em class="bsub">Cameroun</em></span>
+                    <span class="bname">MontRoyal<em class="bsub"></em></span>
                 </div>
             </a>
             <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navmenu">
@@ -32,6 +32,7 @@
                 <ul class="navbar-nav mx-auto">
                     <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Accueil</a></li>
                     <li class="nav-item"><a class="nav-link" href="{{ route('restaurants.index') }}">Restaurants</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{{ route('home') }}#contact-section">Contact</a></li>
                 </ul>
                 <div class="d-flex align-items-center gap-3">
                     <form action="{{ route('search') }}" method="GET" class="d-none d-md-flex">
@@ -40,9 +41,8 @@
                     </form>
                     <a href="{{ route('cart.index') }}" class="position-relative" style="font-size:20px;color:inherit;">
                         <i class="fas fa-shopping-cart"></i>
-                        @if(session('cart') && count(session('cart')) > 0)
-                            <span class="badge rounded-pill bg-danger position-absolute" style="top:-8px;right:-10px;font-size:11px;">{{ count(session('cart')) }}</span>
-                        @endif
+                        @php $cartCount = session('cart') ? count(session('cart')) : 0; @endphp
+                        <span id="cartCount" class="badge rounded-pill bg-danger position-absolute {{ $cartCount == 0 ? 'd-none' : '' }}" style="top:-8px;right:-10px;font-size:11px;">{{ $cartCount }}</span>
                     </a>
                     @auth
                         <div class="dropdown">

@@ -3,16 +3,15 @@
         <nav class="navbar navbar-expand-lg navbar-light p-0">
             <div class="iq-navbar-logo d-flex align-items-center justify-content-between">
                 <i class="ri-menu-line wrapper-menu"></i>
-                <a href="{{ url('admin/backend/index.html') }}" class="header-logo">
+                <a href="{{ route('admin.dashboard') }}" class="header-logo">
                     <img src="{{ url('admin/assets/images/logo.png') }}" class="img-fluid rounded-normal" alt="logo">
-                    <h5 class="logo-title ml-3">POSDash</h5>
-
+                    <h5 class="logo-title ml-3">MontRoyal</h5>
                 </a>
             </div>
             <div class="iq-search-bar device-search">
-                <form action="#" class="searchbox">
-                    <a class="search-link" href="#"><i class="ri-search-line"></i></a>
-                    <input type="text" class="text search-input" placeholder="Search here...">
+                <form action="{{ route('admin.products.index') }}" method="GET" class="searchbox">
+                    <button type="submit" class="search-link" style="border:none;background:none;"><i class="ri-search-line"></i></button>
+                    <input type="text" name="search" class="text search-input" placeholder="Rechercher un produit...">
                 </form>
             </div>
             <div class="d-flex align-items-center">
@@ -23,244 +22,59 @@
                 </button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ml-auto navbar-list align-items-center">
-                        <li class="nav-item nav-icon dropdown">
-                            <a href="#" class="search-toggle dropdown-toggle btn border add-btn"
-                                id="dropdownMenuButton02" data-toggle="dropdown" aria-haspopup="true"
-                                aria-expanded="false">
-                                <img src="{{ url('admin/assets/images/small/flag-01.png') }}" alt="img-flag"
-                                    class="img-fluid image-flag mr-2">En
-                            </a>
-                            <div class="iq-sub-dropdown dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                <div class="card shadow-none m-0">
-                                    <div class="card-body p-3">
-                                        <a class="iq-sub-card" href="#"><img
-                                                src="{{ url('admin/assets/images/small/flag-02.png') }}" alt="img-flag"
-                                                class="img-fluid mr-2">French</a>
-                                        <a class="iq-sub-card" href="#"><img
-                                                src="{{ url('admin/assets/images/small/flag-03.png') }}" alt="img-flag"
-                                                class="img-fluid mr-2">Spanish</a>
-                                        <a class="iq-sub-card" href="#"><img
-                                                src="{{ url('admin/assets/images/small/flag-04.png') }}" alt="img-flag"
-                                                class="img-fluid mr-2">Italian</a>
-                                        <a class="iq-sub-card" href="#"><img
-                                                src="{{ url('admin/assets/images/small/flag-05.png') }}" alt="img-flag"
-                                                class="img-fluid mr-2">German</a>
-                                        <a class="iq-sub-card" href="#"><img
-                                                src="{{ url('admin/assets/images/small/flag-06.png') }}" alt="img-flag"
-                                                class="img-fluid mr-2">Japanese</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <a href="#" class="btn border add-btn shadow-none mx-2 d-none d-md-block"
-                                data-toggle="modal" data-target="#new-order"><i class="las la-plus mr-2"></i>New
-                                Order</a>
-                        </li>
                         <li class="nav-item nav-icon search-content">
                             <a href="#" class="search-toggle rounded" id="dropdownSearch" data-toggle="dropdown"
                                 aria-haspopup="true" aria-expanded="false">
                                 <i class="ri-search-line"></i>
                             </a>
                             <div class="iq-search-bar iq-sub-dropdown dropdown-menu" aria-labelledby="dropdownSearch">
-                                <form action="#" class="searchbox p-2">
+                                <form action="{{ route('admin.products.index') }}" method="GET" class="searchbox p-2">
                                     <div class="form-group mb-0 position-relative">
-                                        <input type="text" class="text search-input font-size-12"
-                                            placeholder="type here to search...">
-                                        <a href="#" class="search-link"><i class="las la-search"></i></a>
+                                        <input type="text" name="search" class="text search-input font-size-12"
+                                            placeholder="Rechercher un produit...">
+                                        <button type="submit" class="search-link" style="border:none;background:none;"><i class="las la-search"></i></button>
                                     </div>
                                 </form>
                             </div>
                         </li>
-                        <li class="nav-item nav-icon dropdown">
-                            <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton2"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-mail">
-                                    <path
-                                        d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                                    </path>
-                                    <polyline points="22,6 12,13 2,6"></polyline>
-                                </svg>
-                                <span class="bg-primary"></span>
-                            </a>
-                            <div class="iq-sub-dropdown dropdown-menu" aria-labelledby="dropdownMenuButton2">
-                                <div class="card shadow-none m-0">
-                                    <div class="card-body p-0 ">
-                                        <div class="cust-title p-3">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">All Messages</h5>
-                                                <a class="badge badge-primary badge-card" href="#">3</a>
-                                            </div>
-                                        </div>
-                                        <div class="px-3 pt-0 pb-0 sub-card">
-                                            <a href="#" class="iq-sub-card">
-                                                <div class="media align-items-center cust-card py-3 border-bottom">
-                                                    <div class="">
-                                                        <img class="avatar-50 rounded-small"
-                                                            src="{{ url('admin/assets/images/user/01.jpg') }}" alt="01">
-                                                    </div>
-                                                    <div class="media-body ml-3">
-                                                        <div class="d-flex align-items-center justify-content-between">
-                                                            <h6 class="mb-0">Emma Watson</h6>
-                                                            <small class="text-dark"><b>12 : 47 pm</b></small>
-                                                        </div>
-                                                        <small class="mb-0">Lorem ipsum dolor sit amet</small>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                            <a href="#" class="iq-sub-card">
-                                                <div class="media align-items-center cust-card py-3 border-bottom">
-                                                    <div class="">
-                                                        <img class="avatar-50 rounded-small"
-                                                            src="{{ url('admin/assets/images/user/02.jpg') }}" alt="02">
-                                                    </div>
-                                                    <div class="media-body ml-3">
-                                                        <div class="d-flex align-items-center justify-content-between">
-                                                            <h6 class="mb-0">Ashlynn Franci</h6>
-                                                            <small class="text-dark"><b>11 : 30 pm</b></small>
-                                                        </div>
-                                                        <small class="mb-0">Lorem ipsum dolor sit amet</small>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                            <a href="#" class="iq-sub-card">
-                                                <div class="media align-items-center cust-card py-3">
-                                                    <div class="">
-                                                        <img class="avatar-50 rounded-small"
-                                                            src="{{ url('admin/assets/images/user/03.jpg') }}" alt="03">
-                                                    </div>
-                                                    <div class="media-body ml-3">
-                                                        <div class="d-flex align-items-center justify-content-between">
-                                                            <h6 class="mb-0">Kianna Carder</h6>
-                                                            <small class="text-dark"><b>11 : 21 pm</b></small>
-                                                        </div>
-                                                        <small class="mb-0">Lorem ipsum dolor sit amet</small>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <a class="right-ic btn btn-primary btn-block position-relative p-2" href="#"
-                                            role="button">
-                                            View All
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li>
-                        {{-- <li class="nav-item nav-icon dropdown">
-                            <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="feather feather-bell">
-                                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                                </svg>
-                                <span class="bg-primary "></span>
-                            </a>
-                            <div class="iq-sub-dropdown dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                <div class="card shadow-none m-0">
-                                    <div class="card-body p-0 ">
-                                        <div class="cust-title p-3">
-                                            <div class="d-flex align-items-center justify-content-between">
-                                                <h5 class="mb-0">Notifications</h5>
-                                                <a class="badge badge-primary badge-card" href="#">3</a>
-                                            </div>
-                                        </div>
-                                        <div class="px-3 pt-0 pb-0 sub-card">
-                                            <a href="#" class="iq-sub-card">
-                                                <div class="media align-items-center cust-card py-3 border-bottom">
-                                                    <div class="">
-                                                        <img class="avatar-50 rounded-small"
-                                                            src="{{ url('admin/assets/images/user/01.jpg') }}" alt="01">
-                                                    </div>
-                                                    <div class="media-body ml-3">
-                                                        <div class="d-flex align-items-center justify-content-between">
-                                                            <h6 class="mb-0">Emma Watson</h6>
-                                                            <small class="text-dark"><b>12 : 47 pm</b></small>
-                                                        </div>
-                                                        <small class="mb-0">Lorem ipsum dolor sit amet</small>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                            <a href="#" class="iq-sub-card">
-                                                <div class="media align-items-center cust-card py-3 border-bottom">
-                                                    <div class="">
-                                                        <img class="avatar-50 rounded-small"
-                                                            src="{{ url('admin/assets/images/user/02.jpg') }}" alt="02">
-                                                    </div>
-                                                    <div class="media-body ml-3">
-                                                        <div class="d-flex align-items-center justify-content-between">
-                                                            <h6 class="mb-0">Ashlynn Franci</h6>
-                                                            <small class="text-dark"><b>11 : 30 pm</b></small>
-                                                        </div>
-                                                        <small class="mb-0">Lorem ipsum dolor sit amet</small>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                            <a href="#" class="iq-sub-card">
-                                                <div class="media align-items-center cust-card py-3">
-                                                    <div class="">
-                                                        <img class="avatar-50 rounded-small"
-                                                            src="{{ url('admin/assets/images/user/03.jpg') }}" alt="03">
-                                                    </div>
-                                                    <div class="media-body ml-3">
-                                                        <div class="d-flex align-items-center justify-content-between">
-                                                            <h6 class="mb-0">Kianna Carder</h6>
-                                                            <small class="text-dark"><b>11 : 21 pm</b></small>
-                                                        </div>
-                                                        <small class="mb-0">Lorem ipsum dolor sit amet</small>
-                                                    </div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                        <a class="right-ic btn btn-primary btn-block position-relative p-2" href="#"
-                                            role="button">
-                                            View All
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </li> --}}
                         <li class="nav-item nav-icon dropdown" id="notificationBell">
                             <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton"
-                                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round" class="feather feather-bell">
                                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                                     <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                                 </svg>
-                                <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute" 
+                                <span id="notificationBadge" class="badge bg-danger rounded-pill position-absolute"
                                     style="top:0;right:0;font-size:10px;{{ auth()->user()->notifications()->where('is_read', false)->count() === 0 ? 'display:none;' : '' }}">
                                     {{ auth()->user()->notifications()->where('is_read', false)->count() }}
                                 </span>
                             </a>
-                            <div class="iq-sub-dropdown dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton" style="width:350px;">
+                            <div class="iq-sub-dropdown dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton" style="width:350px;">
                                 <div class="card shadow-none m-0">
                                     <div class="card-body p-0">
                                         <div class="cust-title p-3">
                                             <div class="d-flex align-items-center justify-content-between">
                                                 <h5 class="mb-0">Notifications</h5>
-                                                <a class="badge badge-primary badge-card" href="#" id="notificationCount">
+                                                <span class="badge badge-primary badge-card">
                                                     {{ auth()->user()->notifications()->where('is_read', false)->count() }}
-                                                </a>
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="px-3 pt-0 pb-0 sub-card" id="notificationList" style="max-height:300px;overflow-y:auto;">
                                             @php
                                                 $notifications = auth()->user()->notifications()->latest()->take(5)->get();
                                             @endphp
-                                            
+
                                             @forelse($notifications as $notif)
-                                                <a href="#" class="iq-sub-card notification-item {{ $notif->is_read ? '' : 'bg-light' }}" 
-                                                data-id="{{ $notif->id }}">
+                                                <a href="#" class="iq-sub-card notification-item {{ $notif->is_read ? '' : 'bg-light' }}"
+                                                   data-id="{{ $notif->id }}"
+                                                   data-url="{{ $notif->action_url ?? '' }}">
                                                     <div class="media align-items-center cust-card py-3 border-bottom">
                                                         <div class="">
                                                             <img class="avatar-50 rounded-small"
-                                                                src="https://ui-avatars.com/api/?name=System&background=e74c3c&color=fff&size=50" 
+                                                                src="https://ui-avatars.com/api/?name=System&background=e74c3c&color=fff&size=50"
                                                                 alt="notif">
                                                         </div>
                                                         <div class="media-body ml-3">
@@ -279,8 +93,8 @@
                                                 </div>
                                             @endforelse
                                         </div>
-                                        <a class="right-ic btn btn-primary btn-block position-relative p-2" 
-                                        href="#" role="button">
+                                        <a class="right-ic btn btn-primary btn-block position-relative p-2"
+                                           href="{{ route('admin.notifications.index') }}" role="button">
                                             Voir toutes les notifications
                                         </a>
                                     </div>
@@ -290,23 +104,22 @@
                         <li class="nav-item nav-icon dropdown caption-content">
                             <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton4"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <img src="{{ url('admin/assets/images/user/1.png') }}" class="img-fluid rounded" alt="user">
+                                <img src="{{ auth()->user()->avatar_url ?? url('admin/assets/images/user/1.png') }}" class="img-fluid rounded" alt="user">
                             </a>
-                            <div class="iq-sub-dropdown dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <div class="iq-sub-dropdown dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton4">
                                 <div class="card shadow-none m-0">
                                     <div class="card-body p-0 text-center">
                                         <div class="media-body profile-detail text-center">
                                             <img src="{{ url('admin/assets/images/page-img/profile-bg.jpg') }}" alt="profile-bg"
                                                 class="rounded-top img-fluid mb-4">
-                                            <img src="{{ url('admin/assets/images/user/1.png') }}" alt="profile-img"
+                                            <img src="{{ auth()->user()->avatar_url ?? url('admin/assets/images/user/1.png') }}" alt="profile-img"
                                                 class="rounded profile-img img-fluid avatar-70">
-                                            {{-- <img src="{{ auth()->user()->avatar_url }}" class="rounded-circle" width="35" height="35" alt=""> --}}
                                         </div>
                                         <div class="p-3">
-                                            <h5 class="mb-1">JoanDuo@property.com</h5>
-                                            <p class="mb-0">Since 10 march, 2020</p>
+                                            <h5 class="mb-1">{{ auth()->user()->name }}</h5>
+                                            <p class="mb-0 text-muted small">{{ auth()->user()->email }}</p>
                                             <div class="d-flex align-items-center justify-content-center mt-3">
-                                                <a href="{{ url('admin/app/user-profile.html') }}" class="btn border mr-2">Profile</a>
+                                                <a href="{{ route('profile.index') }}" class="btn border mr-2">Profil</a>
                                                 <form action="{{ route('logout') }}" method="POST">
                                                     @csrf
                                                     <button type="submit" class="btn border">
@@ -325,26 +138,32 @@
         </nav>
     </div>
 </div>
-<div class="modal fade" id="new-order" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-body">
-                <div class="popup text-left">
-                    <h4 class="mb-3">New Order</h4>
-                    <div class="content create-workform bg-body">
-                        <div class="pb-3">
-                            <label class="mb-2">Email</label>
-                            <input type="text" class="form-control" placeholder="Enter Name or Email">
-                        </div>
-                        <div class="col-lg-12 mt-4">
-                            <div class="d-flex flex-wrap align-items-ceter justify-content-center">
-                                <div class="btn btn-primary mr-4" data-dismiss="modal">Cancel</div>
-                                <div class="btn btn-outline-primary" data-dismiss="modal">Create</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    document.querySelectorAll('.notification-item').forEach(function (item) {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
+            var id = this.getAttribute('data-id');
+            var url = this.getAttribute('data-url');
+
+            fetch('/admin/notifications/' + id + '/read', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            }).finally(function () {
+                if (url) {
+                    window.location.href = url;
+                } else {
+                    window.location.reload();
+                }
+            });
+        });
+    });
+});
+</script>

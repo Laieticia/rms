@@ -20,7 +20,8 @@ class ReservationController extends Controller
     {
         $restaurantId = $this->getRestaurantId();
 
-        $query = Reservation::where('restaurant_id', $restaurantId)->with('user');
+        $query = Reservation::with('user')
+            ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId));
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -28,20 +29,24 @@ class ReservationController extends Controller
 
         if ($request->filled('date')) {
             $query->whereDate('date', $request->date);
-        } else {
-            // Par défaut : aujourd'hui et les réservations à venir
-            $query->where('date', '>=', today())->orWhere(function ($q) use ($restaurantId) {
-                $q->where('restaurant_id', $restaurantId)->where('status', 'pending');
+        } elseif (!$request->filled('status')) {
+            // Vue par défaut uniquement si aucun filtre n'est appliqué :
+            // aujourd'hui et les jours suivants, plus les réservations en attente
+            // (même passées) qui nécessitent encore une action.
+            $query->where(function ($q) {
+                $q->where('date', '>=', today())->orWhere('status', 'pending');
             });
         }
 
         $reservations = $query->orderBy('date')->orderBy('time')->paginate(20)->withQueryString();
 
         $stats = [
-            'pending' => Reservation::where('restaurant_id', $restaurantId)->where('status', 'pending')->count(),
-            'confirmed_today' => Reservation::where('restaurant_id', $restaurantId)
+            'pending' => Reservation::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))->where('status', 'pending')->count(),
+            'confirmed_today' => Reservation::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
                 ->where('status', 'confirmed')->whereDate('date', today())->count(),
-            'total_today' => Reservation::where('restaurant_id', $restaurantId)->whereDate('date', today())->count(),
+            'completed_today' => Reservation::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+                ->where('status', 'completed')->whereDate('date', today())->count(),
+            'total_today' => Reservation::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))->whereDate('date', today())->count(),
         ];
 
         return view('admin.reservations.index', compact('reservations', 'stats'));

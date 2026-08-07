@@ -8,9 +8,16 @@
 
 @section('content')
 <div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
         <h2 class="mb-0">Suivi de la commande #{{ $order->order_number }}</h2>
-        <a href="{{ route('profile.orders.show', $order) }}" class="btn btn-outline-secondary btn-sm">Détails de la commande</a>
+        <div class="d-flex gap-2">
+            @if($order->canBeReviewedBy(auth()->user()))
+                <a href="{{ route('orders.review.create', $order) }}" class="btn btn-sm btn-outline-warning">
+                    <i class="bi bi-star"></i> Laisser un avis
+                </a>
+            @endif
+            <a href="{{ route('profile.orders.show', $order) }}" class="btn btn-outline-secondary btn-sm">Détails de la commande</a>
+        </div>
     </div>
 
     {{-- Étapes --}}

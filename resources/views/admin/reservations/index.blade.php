@@ -8,7 +8,7 @@
         <h3 class="fw-bold mb-4"><i class="bi bi-calendar-check me-2"></i>Réservations</h3>
 
         <div class="row g-3 mb-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card bg-warning text-white">
                     <div class="card-body text-center py-3">
                         <h4 class="mb-0">{{ $stats['pending'] }}</h4>
@@ -16,7 +16,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
                 <div class="card bg-success text-white">
                     <div class="card-body text-center py-3">
                         <h4 class="mb-0">{{ $stats['confirmed_today'] }}</h4>
@@ -24,7 +24,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
+                <div class="card bg-secondary text-white">
+                    <div class="card-body text-center py-3">
+                        <h4 class="mb-0">{{ $stats['completed_today'] }}</h4>
+                        <small>Terminées aujourd'hui</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
                 <div class="card bg-primary text-white">
                     <div class="card-body text-center py-3">
                         <h4 class="mb-0">{{ $stats['total_today'] }}</h4>
@@ -94,6 +102,14 @@
                                     <a href="{{ route('admin.reservations.show', $reservation) }}" class="btn btn-sm btn-outline-primary">
                                         <i class="bi bi-eye"></i>
                                     </a>
+                                    @if($reservation->status === 'confirmed')
+                                        <form action="{{ route('admin.reservations.complete', $reservation) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary" title="Marquer comme terminée">
+                                                <i class="bi bi-check2-all"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                 </td>
                             </tr>
                         @empty
