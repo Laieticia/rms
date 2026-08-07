@@ -1,0 +1,23 @@
+node_modules
+vendor
+.env
+.env.*.local
+.git
+.gitignore
+.editorconfig
+.docker
+docker-compose.yml
+Dockerfile
+.env.example
+README.md
+*.log
+tests
+.phpunit.cache
+storage/logs/*
+bootstrap/cache/*
+.DS_Store
+.ideaNPM Debug logs
+.vscode
+.idea
+*.swp
+*.swo

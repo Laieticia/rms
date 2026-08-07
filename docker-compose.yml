@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: multishop_app
+    restart: unless-stopped
+    working_dir: /app
+    ports:
+      - "8000:80"
+    environment:
+      APP_NAME: Multishop
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: multishops2026
+      DB_USERNAME: root
+      DB_PASSWORD: root
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+    volumes:
+      - ./:/app
+    networks:
+      - multishop
+
+  mysql:
+    image: mysql:8.0
+    container_name: multishop_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: multishops2026
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - multishop
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  multishop:
+    driver: bridge
