@@ -23,6 +23,14 @@ return Application::configure(basePath: dirname(__DIR__))
             
             // Middleware personnalisé pour l'admin
             'admin.access' => \App\Http\Middleware\CheckAdminAccess::class,
+
+            // Middleware de localisation
+            'set.locale' => \App\Http\Middleware\SetLocale::class,
+        ]);
+
+        // Appliquer SetLocale à toutes les requêtes web
+        $middleware->web(append: [
+            \App\Http\Middleware\SetLocale::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

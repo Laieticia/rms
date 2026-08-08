@@ -11,7 +11,7 @@
             <div class="iq-search-bar device-search">
                 <form action="{{ route('admin.products.index') }}" method="GET" class="searchbox">
                     <button type="submit" class="search-link" style="border:none;background:none;"><i class="ri-search-line"></i></button>
-                    <input type="text" name="search" class="text search-input" placeholder="Rechercher un produit...">
+                    <input type="text" name="search" class="text search-input" placeholder="{{ __('messages.search') }}...">
                 </form>
             </div>
             <div class="d-flex align-items-center">
@@ -31,7 +31,7 @@
                                 <form action="{{ route('admin.products.index') }}" method="GET" class="searchbox p-2">
                                     <div class="form-group mb-0 position-relative">
                                         <input type="text" name="search" class="text search-input font-size-12"
-                                            placeholder="Rechercher un produit...">
+                                            placeholder="{{ __('messages.search') }}...">
                                         <button type="submit" class="search-link" style="border:none;background:none;"><i class="las la-search"></i></button>
                                     </div>
                                 </form>
@@ -101,6 +101,40 @@
                                 </div>
                             </div>
                         </li>
+
+                        {{-- ── Sélecteur de langue (Admin) ─────────────────────── --}}
+                        <li class="nav-item nav-icon dropdown">
+                            <a href="#" class="search-toggle dropdown-toggle d-flex align-items-center gap-1"
+                               id="dropdownLang" data-toggle="dropdown"
+                               aria-haspopup="true" aria-expanded="false"
+                               title="Language / Langue"
+                               style="padding:6px 10px;border:1px solid rgba(0,0,0,.12);border-radius:20px;font-size:.8rem;">
+                                @if(app()->getLocale() === 'fr')
+                                    <span>🇫🇷</span> <span>FR</span>
+                                @else
+                                    <span>🇬🇧</span> <span>EN</span>
+                                @endif
+                                <i class="las la-angle-down" style="font-size:.7rem;"></i>
+                            </a>
+                            <div class="iq-sub-dropdown dropdown-menu dropdown-menu-right" aria-labelledby="dropdownLang" style="min-width:140px;">
+                                <div class="card shadow-none m-0">
+                                    <div class="card-body p-2">
+                                        <a href="{{ route('language.switch', 'fr') }}"
+                                           class="iq-sub-card d-flex align-items-center gap-2 py-2 px-3 rounded {{ app()->getLocale() === 'fr' ? 'bg-primary text-white' : '' }}"
+                                           style="text-decoration:none;">
+                                            <span>🇫🇷</span> <span>Français</span>
+                                        </a>
+                                        <a href="{{ route('language.switch', 'en') }}"
+                                           class="iq-sub-card d-flex align-items-center gap-2 py-2 px-3 rounded {{ app()->getLocale() === 'en' ? 'bg-primary text-white' : '' }}"
+                                           style="text-decoration:none;">
+                                            <span>🇬🇧</span> <span>English</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        {{-- ─────────────────────────────────────────────────── --}}
+
                         <li class="nav-item nav-icon dropdown caption-content">
                             <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton4"
                                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -119,11 +153,11 @@
                                             <h5 class="mb-1">{{ auth()->user()->name }}</h5>
                                             <p class="mb-0 text-muted small">{{ auth()->user()->email }}</p>
                                             <div class="d-flex align-items-center justify-content-center mt-3">
-                                                <a href="{{ route('profile.index') }}" class="btn border mr-2">Profil</a>
+                                                <a href="{{ route('profile.index') }}" class="btn border mr-2">{{ __('app.profile') }}</a>
                                                 <form action="{{ route('logout') }}" method="POST">
                                                     @csrf
                                                     <button type="submit" class="btn border">
-                                                        Déconnexion
+                                                        {{ __('messages.logout') }}
                                                     </button>
                                                 </form>
                                             </div>

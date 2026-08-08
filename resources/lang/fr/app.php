@@ -138,6 +138,7 @@ return [
     
     // General
     'home' => 'Accueil',
+    'restaurants' => 'Restaurants',
     'profile' => 'Profil',
     'help' => 'Aide',
     'about' => 'À propos',

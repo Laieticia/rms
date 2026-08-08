@@ -25,6 +25,21 @@ use App\Http\Controllers\ReservationController;
 use Illuminate\Support\Facades\Route;
 
 
+// ─── Changement de langue ─────────────────────────────────────────────────────
+Route::get('/language/{locale}', function (string $locale) {
+    $supported = ['fr', 'en'];
+
+    if (in_array($locale, $supported)) {
+        session(['locale' => $locale]);
+        cookie()->queue(cookie()->forever('locale', $locale));
+    }
+
+    return redirect()->back()->withHeaders([
+        'Cache-Control' => 'no-store, no-cache, must-revalidate',
+    ]);
+})->name('language.switch');
+
+
 // Accueil
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/search', [HomeController::class, 'search'])->name('search');
